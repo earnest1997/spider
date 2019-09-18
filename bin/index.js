@@ -14,15 +14,13 @@ const puppeteer = require('puppeteer-core')
  * @param {*} storePath store path
  */
 class Spider {
-  constructor(url, storePath, keywords) {
+  constructor(url) {
     this.url = url
-    this.storePath = storePath
-    this.keywords = keywords
     this.entry()
   }
   entry() {
-    this.ceateReq()
-    this.crawl()
+    this.searchArticle()
+    // this.crawl()
   }
   createStorePath() {
     if (!fs.existsSync(this.storePath)) {
@@ -36,14 +34,19 @@ class Spider {
   }
 
   async searchArticle() {
+    
   const browser=await puppeteer.launch({headless:true})
-  const jianshuSearch= new Promise(async(resolve,reject)=>{
-  const page=await browser.newPage()
+  this.jianshuSearch(browser)
+  this.juejinSearch(browser)
+  }
+  async jianshuSearch(browser){
+    const page=new browser.newPage()
+    try{
   await page.goto('https://www.jianshu.com/')
   await page.focus('.search-input')
   await page.type(this.keywords,{delay:100}) //输入变慢像一个用户
   await page.click('.search-btn')
-  try{
+  console.log(9990)
   const waitForElement=await page.waitForSelector(".note-list")
   const resultCount=waitForElement.length
   const crawlCount=resultCount>=4?4:resultCount
@@ -53,15 +56,17 @@ class Spider {
   const title=await page.$eval(`.note-list>li:nth-child[${index}] .title`,el=>el.innerHTML)
   const description=await page.$eval(`.note-list>li:nth-child[${index}] .abstract`,el=>el.innerHTML)
   const url=await page.$eval(`.note-list>li:nth-child[${index}] .title`,el=>el.href)
-  resolve({author,time,title,description,url})
+  return ({author,time,title,description,url})
   })
   }
   catch(err){
     console.log(err,'获取页面元素失败')
-    reject('获取页面元素失败')
   }
-})
-const juejinSearch=new Promise(async(resolve,reject)=>{
+  
+}
+async juejinSearch(browser){
+  console.log(9990)
+try{
   const page=await browser.newPage()
   await page.goto('https://juejin.im/')
   await page.focus('.search-input')
@@ -70,19 +75,23 @@ const juejinSearch=new Promise(async(resolve,reject)=>{
   const waitForElement=await page.waitForSelector(".main-list")
   const resultCount=waitForElement.item(0).length
   const childArr=Array.from(waitForElement.item(0).childNodes).filter(item=>item.innerHTML.test(/class="entry"/))
+console.log(childArr)
+//   const crawlCount=resultCount>=4?4:resultCount
+// childArr.length=crawlCount
+//   childArr.map(async(item,index)=>{
+//     const author=await page.$eval(`.main-list>li:nth-child[${index}] .nickname`,el=>el.innerHTML)
+//    const time=await page.$eval(`.main-list>li:nth-child[${index}] .time`,el=>el.innerHTML)
+//    const title=await page.$eval(`.main-list>li:nth-child[${index}] .title`,el=>el.innerHTML)
+//    const description=await page.$eval(`.main-list>li:nth-child[${index}] .abstract`,el=>el.innerHTML)
+//    const url=await page.$eval(`.main-list>li:nth-child[${index}] .title`,el=>el.href)
+//    return ({author,time,title,description,url})
+}
+catch(err){
+  console.log(err,999)
+}
+   
 
-  const crawlCount=resultCount>=4?4:resultCount
-childArr.length=crawlCount
-  childArr.map(async(item,index)=>{
-    const author=await page.$eval(`.main-list>li:nth-child[${index}] .nickname`,el=>el.innerHTML)
-   const time=await page.$eval(`.main-list>li:nth-child[${index}] .time`,el=>el.innerHTML)
-   const title=await page.$eval(`.main-list>li:nth-child[${index}] .title`,el=>el.innerHTML)
-   const description=await page.$eval(`.main-list>li:nth-child[${index}] .abstract`,el=>el.innerHTML)
-   const url=await page.$eval(`.main-list>li:nth-child[${index}] .title`,el=>el.href)
-   resolve({author,time,title,description,url})
-   })
-})
-
+// return await Promise.all([juejinSearch,jianshuSearch])
   }
 
   async crawl() {
@@ -97,5 +106,6 @@ childArr.length=crawlCount
   }
 }
 
-new Spider('https://jianshu.com/').crawl()
+
+new Spider('https://jianshu.com/')
 
