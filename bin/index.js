@@ -8,14 +8,15 @@ const shelljs = require('shelljs')
 const cheerio = require('cheerio')
 const axios = require('axios')
 const puppeteer = require('puppeteer-core')
+const {searchMap}=require('config/searchConfig.js')
 /**
  *
- * @param {*} url
+ * @param {*} operation 可选值: search hot
  * @param {*} storePath store path
  */
 class Spider {
-  constructor(url) {
-    this.url = url
+  constructor(operation) {
+    this.operation = operation
     this.entry()
   }
   entry() {
@@ -109,20 +110,20 @@ class Spider {
     // return await Promise.all([juejinSearch,jianshuSearch])
   }
 
-  async crawl() {
-    const data = await axios.get('https://www.jianshu.com')
-    console.log(data.data, 8)
-    fs.writeFileSync(
-      path.resolve(__dirname, './content.js'),
-      'module.exports=' + JSON.stringify(data.data),
-      'utf-8'
-    )
+  // async crawl() {
+  //   const data = await axios.get('https://www.jianshu.com')
+  //   console.log(data.data, 8)
+  //   fs.writeFileSync(
+  //     path.resolve(__dirname, './content.js'),
+  //     'module.exports=' + JSON.stringify(data.data),
+  //     'utf-8'
+  //   )
     // const $ = cheerio.load(data)
     // const content = fs
     //   .readFileSync(path.resolve(__dirname, 'content.js'), 'utf-8')
     //   .toString()
     // console.log(_html)
-  }
+  // }
 }
 
 new Spider('https://jianshu.com/')

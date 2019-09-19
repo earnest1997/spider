@@ -4,7 +4,9 @@
     "baseUrl": ".",
     "paths": { 
       "util/*": [ "src/util/*" ],
-      "store":[ "src/store" ]}
+      "store":[ "src/store" ],
+      "config":["bin/config"]
+    }
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules"]
