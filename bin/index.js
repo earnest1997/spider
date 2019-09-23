@@ -20,24 +20,28 @@ const db = low(adapters)
 
 db.defaults({hotArticleList:[],articleDetail:[],searchList:[]}).write()
 
-const { classType, functionType } = require(path.resolve(
+const {functionType } = require(path.resolve(
   __dirname,
   '../util/ts.js'
 ))
+const type=require('./type.js')
 /**
  *
  * @param {*} operation 可选值: search hot
  * @param {*} options keywords|...
  */
 
-const options = {
-  keywords: 'string'
-}
 
+// @classType(type.Ispider)
 class Spider {
   constructor(operation, options = { keywords: 'node' }) {
     this.operation = operation
     this.options = options
+    return new Proxy(this, {
+      set: (target, key, value) => {   
+          return true;
+      }
+  });
   }
   start() {
     this[`${this.operation}Article`](this.options)
@@ -58,7 +62,7 @@ class Spider {
     const { keywords } = this.options
     const browser = await puppeteer.launch({ headless: true })
     const page = await browser.newPage()
-    for (let [k, v] of searchMap.entries()) {
+    Promise.all(searchMap.entries().map(async([k,v])=>{
       const {
         baseUrl,
         searchInput,
@@ -67,7 +71,6 @@ class Spider {
         maxLength,
         data
       } = v
-      try {
         await page.goto(baseUrl)
         await page.type(searchInput, keywords, { delay: 100 }).catch((err) => {
           console.log(err, '2')
@@ -86,12 +89,11 @@ class Spider {
         const articleLength = rootElement.length
         const listCount = articleLength < maxLength ? articleLength : maxLength
         this.generateChild(listCount, data, rootElement, baseUrl, k)
-      } catch (err) {
-        console.log(err, '搜索失败')
-      }
-    }
+    })).catch (err=>{
+      console.log(err, '搜索失败')
+    })
   }
-  // @functionType()
+  @functionType(type.IgenerateChild)
   generateChild(count, data, rootElement, baseUrl, k) {
     Array.from({ length: count }).forEach((item, index) => {
       let content = { id: k }
@@ -113,6 +115,20 @@ class Spider {
       db.get('hotArticleList')
         .push(content)
         .write()
+    })
+  }
+
+  async fetchArticleDetail(urls,baseSelector){
+    const browser = await puppeteer.launch({ headless: true })
+    Promise.all(urls.map(async url=>{
+      const page=await browser.newPage()
+      page.goto(url)
+      await page.waitForSelector(baseSelector)
+      const content=await page.content()
+      const $=cheerio.load(content)
+
+    })).catch(err=>{
+      console.log(err,'获取文章内容失败')
     })
   }
 

@@ -2,6 +2,7 @@
   "compilerOptions": {
     "target": "es6",
     "baseUrl": ".",
+    "experimentalDecorators":true,
     "paths": { 
       "util/*": [ "src/util/*" ],
       "store":[ "src/client/store" ],

@@ -4,37 +4,52 @@ const jianshuBaseConfig = {
   maxLength: 4,
   data: {
     author: {
-      selector: '.nickname'
+      selector: '.nickname',
     },
     time: {
-      selector: '.time'
+      selector: '.time',
     },
     title: {
-      selector: '.title'
+      selector: '.title',
     },
-    url:{
-      selector: '.title'
-    }
-  }
+    url: {
+      selector: '.title',
+    },
+    detail: {
+      baseSelector: '.main>div>section:first-child',
+      content: {
+        selector: 'article',
+      },
+      time: {
+        selector: 'time',
+      },
+    },
+  },
 }
 const juejinBaseConfig = {
   baseUrl: 'https://juejin.im/',
   baseSelector: '.main-list>li',
   maxLength: 4,
-  data:{
-    author:{
-      selector:'.user-popover-box a'
+  data: {
+    author: {
+      selector: '.user-popover-box a',
     },
-    time:{
-      selector:'.meta-list li:nth-child(3)'
+    time: {
+      selector: '.meta-list li:nth-child(3)',
     },
-    title:{
-      selector: '.title-row span'
+    title: {
+      selector: '.title-row span',
     },
-    url:{
-      selector: '.title-row a'
-    }
-  }
+    url: {
+      selector: '.title-row a',
+    },
+    detail: {
+      baseSelector: 'main>div>div',
+      content: {
+        selector: 'article',
+      },
+    },
+  },
 }
 
 module.exports = { jianshuBaseConfig, juejinBaseConfig }
