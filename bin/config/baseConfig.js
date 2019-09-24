@@ -16,13 +16,13 @@ const jianshuBaseConfig = {
       selector: '.title',
     },
     detail: {
-      baseSelector: '.main>div>section:first-child',
+      baseSelector: 'div[role="main"]>div>section:first-child',
       content: {
         selector: 'article',
       },
       time: {
         selector: 'time',
-      },
+      }
     },
   },
 }
@@ -48,6 +48,9 @@ const juejinBaseConfig = {
       content: {
         selector: 'article',
       },
+      time:{
+        selector: 'time'
+      }
     },
   },
 }

@@ -42,7 +42,7 @@ function validate(type, args, funName) {
 exports.functionType = (type) => {
   return function functionDecorator(target, name, descriptor) {
     const interceptors = {
-      apply(target, ctx, args) {
+      apply() {
         validate(type, arguments, name)
         return Reflect.apply(...arguments)
       }

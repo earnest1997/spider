@@ -1,7 +1,9 @@
-import 'axios' from 'axios'
+import axios from 'axios'
 
 export const getHotArticles=()=>{
 axios.get('/hotArticles',(req,res)=>{
   return res.json()
 })
 }
+
+export const getSearchResult= ()

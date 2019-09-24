@@ -22,7 +22,7 @@ const FileSync = require('lowdb/adapters/FileSync')
 const adapters = new FileSync(path.resolve(__dirname, './db.json'))
 const db = low(adapters)
 // tool
-const { flatten } = require('../util/flatten')
+const { flatten,genID } = require(path.resolve(__dirname,'../util/tool'))
 
 db.defaults({ hotArticleList: [], articleDetail: [], searchList: [] }).write()
 
@@ -63,8 +63,8 @@ class Spider {
     const { keywords } = this.options
     const browser = await puppeteer.launch({ headless: true })
     const page = await browser.newPage()
-    Promise.all(
-      searchMap.entries().map(async ([k, v]) => {
+    let urlsWithKeys=[]
+  for(let [k, v] of searchMap.entries()){
         const {
           baseUrl,
           searchInput,
@@ -77,6 +77,7 @@ class Spider {
         await page.type(searchInput, keywords, { delay: 100 }).catch((err) => {
           console.log(err, '2')
         })
+        console.log(baseUrl,88999)
         await page.click(searchBtn).catch((err) => {
           console.log(err, '3')
         })
@@ -97,21 +98,17 @@ class Spider {
           baseUrl,
           k
         )
-        return urlsWithKey
-      })
-    )
-      .then((...arg) => {
-        const flattenArg = flatten(arg)
-        this.fetchArticleDetail(flattenArg)
-      })
-      .catch((err) => {
-        console.log(err, '搜索失败')
-      })
+        urlsWithKeys.push(urlsWithKey)
+      }
+        const flattenArr= flatten(urlsWithKeys)
+        console.log(flattenArr,8899)
+        this.fetchArticleDetail(flattenArr)
   }
-  @functionType(type.IgenerateChild)
+  // @functionType(type.IgenerateChild)
   generateChild(count, data, rootElement, baseUrl, k) {
     return Array.from({ length: count }).map((item, index) => {
-      let content = { id: k }
+      const id=genID()
+      let content = { source: k,id }
       for (let k in data) {
         const { selector } = data[k]
         if (k !== 'url') {
@@ -130,57 +127,39 @@ class Spider {
       db.get('hotArticleList')
         .push(content)
         .write()
-      return { url: content.url, k }
+      return { url: content.url, k,id,author:content.author,title:content.title }
     })
   }
 
-  async fetchArticleDetail(...arg) {
+  async fetchArticleDetail(arg) {
     const browser = await puppeteer.launch({ headless: true })
-    Promise.all(
-      arg.map(async ({ url, k }) => {
-        const detail = { id: k }
-        const { baseSelector, detail: detailConfig } = baseConfigMap.get(k)
+    for(let item of arg){
+      const { url, k,id,author,title }=item 
+        const detail = { source: k ,id,author,title}
+        const {  data:{detail: detailConfig} } = baseConfigMap.get(k)
         const page = await browser.newPage()
         page.goto(url)
-        await page.waitForSelector(baseSelector)
-        const content = await page.content()
-        const $ = cheerio.load(content)
         const { baseSelector: detailBaseSelector } = detailConfig
-        await page.waitForSelector(detailBaseSelector)
+        await page.waitForSelector(detailBaseSelector).catch(err=>{console.log(err,'fetch1 err')})
+        const content = await page.content().catch(err=>{console.log(err,'fetch2 err')})
+        const $ = cheerio.load(content,{
+          decodeEntities: false
+        })
         const rootElement = $(detailBaseSelector)
         const _detailConfig = { ...detailConfig }
         delete _detailConfig.baseSelector
-        for (let [k, v] in _detailConfig) {
-          detail[k] = rootElement.find(v).html()
+        for (let [k, v] of Object.entries(_detailConfig)) {
+          detail[k] = rootElement.find(v.selector).html()
         }
-        console.log(detail, 'detail')
         db.get('articleDetail')
           .push(detail)
           .write()
-      })
-    )
-      .then(() => {
-        console.log('写入详情成功')
-      })
-      .catch((err) => {
-        console.log(err, '获取文章内容失败')
-      })
-  }
-
-  async hotArticle() {
-    const browser = await puppeteer.launch({ headless: true })
-    const page = await browser.newPage()
-    for (let [k, v] of Object.entries(searchMap)) {
-      const { baseUrl } = v
-      try {
-        await page.goto(baseUrl)
-        const _html = await page.content()
-        const $ = cheerio.load(_html)
-      } catch (error) {
-        console.log(error, '获取文章列表失败')
-      }
     }
   }
+
+
+  // async fetchHotest
+
 
   // async searchArticle() {
   //   const browser = await puppeteer.launch({ headless: true })
