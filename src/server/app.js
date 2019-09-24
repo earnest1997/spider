@@ -6,12 +6,13 @@ const process=require('child_process')
 
 
 router.get('/hotArticleList',async(ctx,next)=>{
-ctx.body=db.get('hotArticleList')
+ctx.body={hotArticleList:db.get('hotArticleList')}
 await next()
 })
 
 router.get('/searchResult',async (ctx,next)=>{
-  ctx
+  ctx.body=db.get('searchRes')
+  await next()
 })
 
 app.use(router.routes()) // 启动路由

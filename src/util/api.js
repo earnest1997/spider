@@ -1,8 +1,9 @@
-import axios from 'axios'
+import {get,post} from '../../util/http'
+
 
 export const getHotArticles=()=>{
-axios.get('/hotArticles',(req,res)=>{
-  return res.json()
+get('/hotArticles').then(data=>{
+  const {hotArticleList=[]}=data
 })
 }
 

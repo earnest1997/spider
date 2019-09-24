@@ -38,11 +38,11 @@ class Spider {
   constructor(operation, options = { keywords: 'node' }) {
     this.operation = operation
     this.options = options
-    return new Proxy(this, {
-      set: (target, key, value) => {
-        return true
-      }
-    })
+    // return new Proxy(this, {
+    //   set: (target, key, value) => {
+    //     return true
+    //   }
+    // })
   }
   start() {
     this[`${this.operation}Article`](this.options)
@@ -254,8 +254,16 @@ class Spider {
   // }
 }
 
-// const _Spider=classType(options,Spider)
-const spider = new Spider('search')
+const end=process.argv.length
+let argArr=process.argv.slice(2,end-1)
+const optionsKeyArr=argArr.filter(item=>item.startsWith('--'))
+const optionsValArr=argArr.filter(item=>!item.startsWith('--'))
+let options={}
+for(let [k,v] of Object.entries(optionsKeyArr)){
+  const key=v.replace('-','')
+options[key]=optionsValArr[k]
+}
+const spider = new Spider('search',options)
 spider.start()
 
 module.exports = { db }
