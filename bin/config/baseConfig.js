@@ -51,5 +51,7 @@ const juejinBaseConfig = {
     },
   },
 }
-
-module.exports = { jianshuBaseConfig, juejinBaseConfig }
+const baseConfigMap=new Map()
+baseConfigMap.set('jianshu',jianshuBaseConfig)
+baseConfigMap.set('juejin',juejinBaseConfig)
+module.exports = { jianshuBaseConfig, juejinBaseConfig,baseConfigMap }

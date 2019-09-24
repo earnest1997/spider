@@ -8,9 +8,9 @@ function* enumerate(obj) {
   index++
 }
 
-function validate(type, args, funName){
+function validate(type, args, funName) {
   for (let [index, key] in enumerate(type)) {
-    console.log(type[key],args[index],88)
+    console.log(type[key], args[index], 88)
     if (!type[key]) {
       return
     } else if (!type[key].startsWith('?') && !args[index]) {
@@ -43,9 +43,9 @@ exports.functionType = (type) => {
   return function functionDecorator(target, name, descriptor) {
     const interceptors = {
       apply(target, ctx, args) {
-        validate(type, arguments,name)
+        validate(type, arguments, name)
         return Reflect.apply(...arguments)
-      },
+      }
     }
     const proxy = new Proxy(target[name], interceptors)
     descriptor.value = proxy

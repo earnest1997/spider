@@ -12,36 +12,37 @@ const { searchMap } = require(path.resolve(
   __dirname,
   './config/searchConfig.js'
 ))
-
+const { baseConfigMap } = require(path.resolve(
+  __dirname,
+  './config/baseConfig.js'
+))
+// db
 const low = require('lowdb')
 const FileSync = require('lowdb/adapters/FileSync')
 const adapters = new FileSync(path.resolve(__dirname, './db.json'))
 const db = low(adapters)
+// tool
+const { flatten } = require('../util/flatten')
 
-db.defaults({hotArticleList:[],articleDetail:[],searchList:[]}).write()
+db.defaults({ hotArticleList: [], articleDetail: [], searchList: [] }).write()
 
-const {functionType } = require(path.resolve(
-  __dirname,
-  '../util/ts.js'
-))
-const type=require('./type.js')
-/**
- *
- * @param {*} operation 可选值: search hot
- * @param {*} options keywords|...
- */
-
-
+const { functionType } = require(path.resolve(__dirname, '../util/ts.js'))
+const type = require('./type.js')
 // @classType(type.Ispider)
 class Spider {
+  /**
+   *
+   * @param {*} operation 可选值: search hot
+   * @param {*} options keywords|...
+   */
   constructor(operation, options = { keywords: 'node' }) {
     this.operation = operation
     this.options = options
     return new Proxy(this, {
-      set: (target, key, value) => {   
-          return true;
+      set: (target, key, value) => {
+        return true
       }
-  });
+    })
   }
   start() {
     this[`${this.operation}Article`](this.options)
@@ -62,15 +63,16 @@ class Spider {
     const { keywords } = this.options
     const browser = await puppeteer.launch({ headless: true })
     const page = await browser.newPage()
-    Promise.all(searchMap.entries().map(async([k,v])=>{
-      const {
-        baseUrl,
-        searchInput,
-        searchBtn,
-        baseSelector,
-        maxLength,
-        data
-      } = v
+    Promise.all(
+      searchMap.entries().map(async ([k, v]) => {
+        const {
+          baseUrl,
+          searchInput,
+          searchBtn,
+          baseSelector,
+          maxLength,
+          data
+        } = v
         await page.goto(baseUrl)
         await page.type(searchInput, keywords, { delay: 100 }).catch((err) => {
           console.log(err, '2')
@@ -88,14 +90,27 @@ class Spider {
         const rootElement = $(baseSelector)
         const articleLength = rootElement.length
         const listCount = articleLength < maxLength ? articleLength : maxLength
-        this.generateChild(listCount, data, rootElement, baseUrl, k)
-    })).catch (err=>{
-      console.log(err, '搜索失败')
-    })
+        const urlsWithKey = this.generateChild(
+          listCount,
+          data,
+          rootElement,
+          baseUrl,
+          k
+        )
+        return urlsWithKey
+      })
+    )
+      .then((...arg) => {
+        const flattenArg = flatten(arg)
+        this.fetchArticleDetail(flattenArg)
+      })
+      .catch((err) => {
+        console.log(err, '搜索失败')
+      })
   }
   @functionType(type.IgenerateChild)
   generateChild(count, data, rootElement, baseUrl, k) {
-    Array.from({ length: count }).forEach((item, index) => {
+    return Array.from({ length: count }).map((item, index) => {
       let content = { id: k }
       for (let k in data) {
         const { selector } = data[k]
@@ -115,21 +130,41 @@ class Spider {
       db.get('hotArticleList')
         .push(content)
         .write()
+      return { url: content.url, k }
     })
   }
 
-  async fetchArticleDetail(urls,baseSelector){
+  async fetchArticleDetail(...arg) {
     const browser = await puppeteer.launch({ headless: true })
-    Promise.all(urls.map(async url=>{
-      const page=await browser.newPage()
-      page.goto(url)
-      await page.waitForSelector(baseSelector)
-      const content=await page.content()
-      const $=cheerio.load(content)
-
-    })).catch(err=>{
-      console.log(err,'获取文章内容失败')
-    })
+    Promise.all(
+      arg.map(async ({ url, k }) => {
+        const detail = { id: k }
+        const { baseSelector, detail: detailConfig } = baseConfigMap.get(k)
+        const page = await browser.newPage()
+        page.goto(url)
+        await page.waitForSelector(baseSelector)
+        const content = await page.content()
+        const $ = cheerio.load(content)
+        const { baseSelector: detailBaseSelector } = detailConfig
+        await page.waitForSelector(detailBaseSelector)
+        const rootElement = $(detailBaseSelector)
+        const _detailConfig = { ...detailConfig }
+        delete _detailConfig.baseSelector
+        for (let [k, v] in _detailConfig) {
+          detail[k] = rootElement.find(v).html()
+        }
+        console.log(detail, 'detail')
+        db.get('articleDetail')
+          .push(detail)
+          .write()
+      })
+    )
+      .then(() => {
+        console.log('写入详情成功')
+      })
+      .catch((err) => {
+        console.log(err, '获取文章内容失败')
+      })
   }
 
   async hotArticle() {
@@ -152,75 +187,77 @@ class Spider {
   //   this.jianshuSearch(browser)
   //   // this.juejinSearch(browser)
   // }
-  async jianshuSearch(browser) {
-    const page = await browser.newPage()
-    try {
-      await page.goto('https://www.jianshu.com/')
-      await page.type('.search-input', this.keywords, { delay: 100 }) //输入变慢像一个用户
-      await page.click('.search-btn')
-      console.log(9990)
-      const waitForElement = await page.waitForSelector('.note-list')
-      const resultCount = waitForElement.length
-      const crawlCount = resultCount >= 4 ? 4 : resultCount
-      Array.from({ length: crawlCount }).map(async (item, index) => {
-        try {
-          const author = await page.$eval(
-            `.note-list>li:nth-child[${index}] .nickname`,
-            (el) => el.innerHTML
-          )
-          const time = await page.$eval(
-            `.note-list>li:nth-child[${index}] .time`,
-            (el) => el.innerHTML
-          )
-          const title = await page.$eval(
-            `.note-list>li:nth-child[${index}] .title`,
-            (el) => el.innerHTML
-          )
-          const description = await page.$eval(
-            `.note-list>li:nth-child[${index}] .abstract`,
-            (el) => el.innerHTML
-          )
-          const url = await page.$eval(
-            `.note-list>li:nth-child[${index}] .title`,
-            (el) => el.href
-          )
+  // async jianshuSearch(browser) {
+  //   const page = await browser.newPage()
+  //   try {
+  //     await page.goto('https://www.jianshu.com/')
+  //     await page.type('.search-input', this.keywords, { delay: 100 }) //输入变慢像一个用户
+  //     await page.click('.search-btn')
+  //     console.log(9990)
+  //     const waitForElement = await page.waitForSelector('.note-list')
+  //     const resultCount = waitForElement.length
+  //     const crawlCount = resultCount >= 4 ? 4 : resultCount
+  //     Array.from({ length: crawlCount }).map(async (item, index) => {
+  //       try {
+  //         const author = await page.$eval(
+  //           `.note-list>li:nth-child[${index}] .nickname`,
+  //           (el) => el.innerHTML
+  //         )
+  //         const time = await page.$eval(
+  //           `.note-list>li:nth-child[${index}] .time`,
+  //           (el) => el.innerHTML
+  //         )
+  //         const title = await page.$eval(
+  //           `.note-list>li:nth-child[${index}] .title`,
+  //           (el) => el.innerHTML
+  //         )
+  //         const description = await page.$eval(
+  //           `.note-list>li:nth-child[${index}] .abstract`,
+  //           (el) => el.innerHTML
+  //         )
+  //         const url = await page.$eval(
+  //           `.note-list>li:nth-child[${index}] .title`,
+  //           (el) => el.href
+  //         )
 
-          return { author, time, title, description, url }
-        } catch (err) {}
-      })
-    } catch (err) {
-      console.log(err, '获取页面元素失败')
-    }
-  }
-  async juejinSearch(browser) {
-    console.log(9990)
-    try {
-      const page = await browser.newPage()
-      await page.goto('https://juejin.im/')
-      await page.focus('.search-input')
-      await page.type(this.keywords, { delay: 100 }) //输入变慢像一个用户
-      await page.click('.search-icon')
-      const waitForElement = await page.waitForSelector('.main-list')
-      const resultCount = waitForElement.item(0).childNodes.length
-      const childArr = Array.from({ length: resultCount }).filter((item) =>
-        item.innerHTML.test(/class="entry"/)
-      )
-      console.log(childArr)
-      //   const crawlCount=resultCount>=4?4:resultCount
-      // childArr.length=crawlCount
-      //   childArr.map(async(item,index)=>{
-      //     const author=await page.$eval(`.main-list>li:nth-child[${index}] .nickname`,el=>el.innerHTML)
-      //    const time=await page.$eval(`.main-list>li:nth-child[${index}] .time`,el=>el.innerHTML)
-      //    const title=await page.$eval(`.main-list>li:nth-child[${index}] .title`,el=>el.innerHTML)
-      //    const description=await page.$eval(`.main-list>li:nth-child[${index}] .abstract`,el=>el.innerHTML)
-      //    const url=await page.$eval(`.main-list>li:nth-child[${index}] .title`,el=>el.href)
-      //    return ({author,time,title,description,url})
-    } catch (err) {
-      console.log(err, 999)
-    }
+  //         return { author, time, title, description, url }
+  //       } catch (err) {
+  //         console
+  //       }
+  //     })
+  //   } catch (err) {
+  //     console.log(err, '获取页面元素失败')
+  //   }
+  // }
+  // async juejinSearch(browser) {
+  //   console.log(9990)
+  //   try {
+  //     const page = await browser.newPage()
+  //     await page.goto('https://juejin.im/')
+  //     await page.focus('.search-input')
+  //     await page.type(this.keywords, { delay: 100 }) //输入变慢像一个用户
+  //     await page.click('.search-icon')
+  //     const waitForElement = await page.waitForSelector('.main-list')
+  //     const resultCount = waitForElement.item(0).childNodes.length
+  //     const childArr = Array.from({ length: resultCount }).filter((item) =>
+  //       item.innerHTML.test(/class="entry"/)
+  //     )
+  //     console.log(childArr)
+  //     //   const crawlCount=resultCount>=4?4:resultCount
+  //     // childArr.length=crawlCount
+  //     //   childArr.map(async(item,index)=>{
+  //     //     const author=await page.$eval(`.main-list>li:nth-child[${index}] .nickname`,el=>el.innerHTML)
+  //     //    const time=await page.$eval(`.main-list>li:nth-child[${index}] .time`,el=>el.innerHTML)
+  //    const title=await page.$eval(`.main-list>li:nth-child[${index}] .title`,el=>el.innerHTML)
+  //    const description=await page.$eval(`.main-list>li:nth-child[${index}] .abstract`,el=>el.innerHTML)
+  //    const url=await page.$eval(`.main-list>li:nth-child[${index}] .title`,el=>el.href)
+  //    return ({author,time,title,description,url})
+  //   } catch (err) {
+  //     console.log(err, 999)
+  //   }
 
-    // return await Promise.all([juejinSearch,jianshuSearch])
-  }
+  //   // return await Promise.all([juejinSearch,jianshuSearch])
+  // }
 
   // async crawl() {
   //   const data = await axios.get('https://www.jianshu.com')
