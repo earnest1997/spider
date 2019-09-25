@@ -1,10 +1,8 @@
 import {get,post} from '../../util/http'
 
 
-export const getHotArticles=()=>{
-get('/hotArticles').then(data=>{
-  const {hotArticleList=[]}=data
-})
+export const getHotArticlesApi=()=>{
+return get('/hotArticles')
 }
 
-export const getSearchResult= ()
+// export const getSearchResult= ()

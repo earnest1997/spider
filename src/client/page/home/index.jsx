@@ -1,6 +1,6 @@
-import React from 'src/client/page/home/react'
-import {connect} from 'src/client/page/home/util/store'
-import {functionType} from '../../util/ts'
+import React from 'react'
+import {connect} from '../../../util/store'
+// import {functionType} from '../../util/ts'
 class Home extends React.PureComponent{
 
 render(){

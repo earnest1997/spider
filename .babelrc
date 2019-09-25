@@ -1,4 +1,7 @@
-{
+{  
+  "presets": [
+  "react-app"
+],
   "plugins": [
     ["@babel/plugin-proposal-decorators", { "legacy": true }],
     "@babel/plugin-transform-async-to-generator"

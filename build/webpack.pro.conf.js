@@ -6,12 +6,12 @@
 const path = require('path')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const merge = require('webpack-merge')
-const CleanWebpackPlugin = require('clean-webpack-plugin')
+const {CleanWebpackPlugin} = require('clean-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin')
 const baseWebpackConfig = require('./webpack.base.conf.js')
-const config = require('../config')
+const config = require('./config')
 
 const webpackConfig = merge(baseWebpackConfig, {
   mode: config.build.mode,
@@ -36,12 +36,10 @@ const webpackConfig = merge(baseWebpackConfig, {
     runtimeChunk: true
   },
   plugins: [
-    // 清除之前build过的文件
-    new CleanWebpackPlugin(['dist'], {
-      root: path.join(__dirname, '../')
-    }),
+    // 清除之前build过的文件 root选项不再需要 
+    new CleanWebpackPlugin(),
     new CopyWebpackPlugin([{
-      from: path.resolve(__dirname, '../static'),
+      from: path.resolve(__dirname, '../src/client/static'),
       to: 'static',
       ignore: ['.*']
     }]),

@@ -1,7 +1,7 @@
 import React from 'react'
-import { Provider } from 'util/store'
-import { initState } from 'store'
-import page from './page'
+import { Provider } from './util/store'
+import { initState } from './client/store'
+import page from './client/page'
 import { BrowserRouer as Router, Route } from 'react-router-dom'
 
 export default class App extends React.Component {

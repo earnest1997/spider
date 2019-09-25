@@ -9,7 +9,7 @@ const merge = require('webpack-merge')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin')
 const baseWebpackConfig = require('./webpack.base.conf.js')
-const config = require('../config')
+const config = require('./config')
 
 module.exports = merge(baseWebpackConfig, {
   mode: config.dev.mode,

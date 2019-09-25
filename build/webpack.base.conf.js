@@ -5,7 +5,7 @@
 
 const path = require('path')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
-const config = require('.')
+const config = require('./config')
 const NODE_ENV = process.env.NODE_ENV
 // style files regexes
 const preRegex = /\.(scss|sass)$/
@@ -41,10 +41,7 @@ module.exports = {
       {
         test: /\.(js|jsx)$/,
         loader: 'babel-loader',
-        exclude: /node_modules/,
-        options:{
-          "plugins": ["transform-async-to-generator"]
-        }
+        exclude: /node_modules/
       },
       {
         test: /\.css$/,
