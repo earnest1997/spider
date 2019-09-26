@@ -1,4 +1,4 @@
-const { instanceMap } = require('../bin/type.js')
+const { instanceMap } = require('../../bin/type.js')
 
 function* enumerate(obj) {
   let index = 0

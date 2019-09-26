@@ -12,7 +12,7 @@ const jueSearchConfig = {
   searchBtn: '.search-icon'
 }
 
-searchMap.set('jianshu', { ...jianSearchConfig, ...jianshuBaseConfig })
-searchMap.set('juejin', { ...jueSearchConfig, ...juejinBaseConfig })
+searchMap.set('jianshu', {  ...jianshuBaseConfig,...jianSearchConfig })
+searchMap.set('juejin', {  ...juejinBaseConfig,...jueSearchConfig })
 
 module.exports = { searchMap }

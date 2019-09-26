@@ -1,12 +1,12 @@
 {
   "compilerOptions": {
     "target": "es6",
-    "baseUrl": ".",
+    "baseUrl": "./",
     "experimentalDecorators":true,
     "paths": { 
-      "util/*": [ "src/util/*" ],
-      "store":[ "src/client/store" ],
-      "config":["bin/config"]
+      "util/*": [ "./src/util/*" ],
+      "store":[ "./src/client/store" ],
+      "config":["./bin/config"]
     }
   },
   "include": ["src/**/*"],

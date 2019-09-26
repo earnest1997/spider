@@ -6,7 +6,6 @@ const process = require('process')
 const path = require('path')
 const shelljs = require('shelljs')
 const cheerio = require('cheerio')
-const axios = require('axios')
 const puppeteer = require('puppeteer')
 const { searchMap } = require(path.resolve(
   __dirname,
