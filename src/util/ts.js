@@ -1,12 +1,5 @@
 const { instanceMap } = require('../../bin/type.js')
-
-function* enumerate(obj) {
-  let index = 0
-  for (let k in obj) {
-    yield [index, k]
-  }
-  index++
-}
+const {enumerate} = require('./tool')
 
 function validate(type, args, funName) {
   for (let [index, key] in enumerate(type)) {

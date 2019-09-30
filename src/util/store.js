@@ -1,6 +1,6 @@
-import React, { useContext, useReducer, forwardRef } from 'react'
+import React, { createContext, useReducer, forwardRef } from 'react'
 
-const context = useContext({})
+const context = createContext({})
 export const reducer = (state, action) => {
   const { type, payload } = action
   switch (type) {
@@ -10,23 +10,23 @@ export const reducer = (state, action) => {
       return state
   }
 }
+// simple redux based on context
+
 export const Provider = context.Provider
-export const connect = (mapStateToProps) => (component) => {
-  return forwardRef((props, ref) => {
+
+export const connect = (mapStateToProps) => (component) =>
+  forwardRef((props, ref) => {
     return (
       <context.Consumer>
-        {(state) => {
-          let restProps =
-            typeof mapStateToProps === 'function'
-              ? mapStateToProps(state, props)
-              : {}
-          return React.createElement(
-            component,
-            { ...props, ...restProps, ref },
-            {}
-          )
-        }}
+        {(initialState) =>
+          (() => {
+            if (typeof mapStateToProps === 'function') {
+              props = { ...props, ...mapStateToProps(initialState, props) }
+            }
+            return React.createElement(component, { ...props, ref })
+          })()
+        }
       </context.Consumer>
     )
   })
-}
+

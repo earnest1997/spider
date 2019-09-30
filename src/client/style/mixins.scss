@@ -1,0 +1,17 @@
+// mixins
+@mixin flex($j: center, $a: center, $d: row) {
+  display: flex;
+  justify-content: $j;
+  align-items: $a;
+  flex-direction: $d;
+}
+
+@mixin wh($w, $h) {
+  width: $w * 1px;
+  height: $h * 1px;
+}
+
+@mixin ft($s, $c) {
+  font-size: r($s);
+  color: $c;
+}

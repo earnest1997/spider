@@ -1,9 +1,8 @@
-import axios from 'axios'
+import {get,post} from 'util/http'
 
-export const getHotArticles=()=>{
-axios.get('/hotArticles',(req,res)=>{
-  return res.json()
-})
+
+export const getHotArticlesApi=async()=>{
+return get('/hotArticlesList')
 }
 
-export const getSearchResult= ()
+// export const getSearchResult= ()

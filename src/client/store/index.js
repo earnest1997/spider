@@ -1,12 +1,19 @@
-import {useState,useEffect} from 'React'
-import {getHotArticlesL} from '../api'
+import {getHotArticlesApi} from '../api'
+import {useState,useEffect} from 'react'
 
-export function initState(){
-  return{...getHotArticlesList()}
+
+const getHotArticlesList =() =>{
+  const [hotArticlesList,updateHotArticlesList]=useState([])
+  useEffect(()=>{
+  getHotArticlesApi().then(({data})=>{
+    const {hotArticlesList} =data
+    updateHotArticlesList(hotArticlesList)
+  })
+},[])
+return {hotArticlesList}
 }
 
-export const getHotArticlesList=()=>{
-  const [hotArticlesList,updateHotArticlesList]=useState([])
-  updateHotArticlesList(getHotArticlesL)
-  return [...hotArticlesList]
+
+export const initState=()=>{
+  return {...getHotArticlesList()}
 }

@@ -6,14 +6,16 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "cross-env NODE_ENV=development webpack-dev-server --config build/webpack.dev.conf.js",
-    "build": "cross-env NODE_ENV=production webpack --config build/webpack.pro.conf.js --progress"
+    "build": "cross-env NODE_ENV=production webpack --config build/webpack.pro.conf.js --progress",
+    "server": "node src/server/app.js",
+    "node": "node bin/index.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "async-js": "^0.7.7",
     "axios": "^0.19.0",
-    "babel-cli": "^6.26.0",
+    "babel-node": "0.0.1-security",
     "cheerio": "^1.0.0-rc.3",
     "fs-extra": "^8.1.0",
     "koa": "^2.8.1",
@@ -40,15 +42,17 @@
     ]
   },
   "devDependencies": {
-    "@babel/core": "^7.6.0",
-    "@babel/node": "^7.6.1",
+    "@babel/core": "^7.6.2",
+    "@babel/node": "^7.6.2",
     "@babel/plugin-proposal-decorators": "^7.6.0",
     "@babel/plugin-transform-async-to-generator": "^7.5.0",
     "babel-eslint": "^10.0.3",
+    "babel-loader": "^8.0.6",
     "babel-preset-react-app": "^9.0.1",
     "clean-webpack-plugin": "^3.0.0",
     "copy-webpack-plugin": "^5.0.4",
     "cross-env": "^5.2.1",
+    "css-loader": "^3.2.0",
     "eslint": "^6.3.0",
     "eslint-plugin-react": "^7.14.3",
     "friendly-errors-webpack-plugin": "^1.7.0",
@@ -57,7 +61,9 @@
     "node-sass": "^4.12.0",
     "optimize-css-assets-webpack-plugin": "^5.0.3",
     "sass-loader": "^8.0.0",
+    "style-loader": "^1.0.0",
     "webpack": "^4.40.0",
+    "webpack-cli": "^3.3.9",
     "webpack-dev-server": "^3.8.1",
     "webpack-merge": "^4.2.2"
   }

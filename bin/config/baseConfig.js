@@ -16,7 +16,7 @@ const jianshuBaseConfig = {
       selector: '.title',
     },
     detail: {
-      baseSelector: 'div[role="main"]>div>section:first-child',
+      baseSelector: 'div[role="main"]>div section:first-child',
       content: {
         selector: 'article',
       },
@@ -44,9 +44,9 @@ const juejinBaseConfig = {
       selector: '.title-row a',
     },
     detail: {
-      baseSelector: 'main>div>div',
+      baseSelector: 'main article',
       content: {
-        selector: 'article',
+        selector: 'div[itemprop="articleBody"]',
       },
       time:{
         selector: 'time'
@@ -54,7 +54,11 @@ const juejinBaseConfig = {
     },
   },
 }
+const sourceMap={
+  jiashu:'简书',
+  juejin:'掘金'
+}
 const baseConfigMap=new Map()
 baseConfigMap.set('jianshu',jianshuBaseConfig)
 baseConfigMap.set('juejin',juejinBaseConfig)
-module.exports = { jianshuBaseConfig, juejinBaseConfig,baseConfigMap }
+module.exports = { jianshuBaseConfig, juejinBaseConfig,baseConfigMap,sourceMap }

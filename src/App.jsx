@@ -1,17 +1,19 @@
 import React from 'react'
 import { Provider } from 'util/store'
-import { initState } from 'store'
-import page from './page'
-import { BrowserRouer as Router, Route } from 'react-router-dom'
+import { initState } from './client/store'
+import * as page from './client/page'
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'
+import './client/style/index.scss'
 
-export default class App extends React.Component {
-  render() {
-    return (
-      <Provider store={initState()}>
-        <Router>
-          <Route component={page.Home} exact strict path="/" />
-        </Router>
-      </Provider>
-    )
-  }
+export const App = () => {
+  return (
+    <Router>
+      <Switch>
+        <Provider value={initState()}>
+          <Route component={page.Home} exact strict path='/' />
+          <Route component={page.Article} path='/article:id'/>
+        </Provider>
+      </Switch>
+    </Router>
+  )
 }

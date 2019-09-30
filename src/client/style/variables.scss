@@ -1,0 +1,51 @@
+$palette: (
+  'primary': (
+    'base': #2d8cf0    ,
+    'light': #5cadff,
+    'dark': #2b85e4
+  ),
+  'border': (
+    'base': #dcdee2,
+    'light':#dddddd
+  ),
+  'title': (
+    'base': #17233d
+  ),
+  'content': (
+    'base': #333,
+    'light': #fff,
+    'dark': #000
+  ),
+  'background': (
+    'base': #f5f5f5,
+    'light': #fff,
+    'dark': #ccc
+  ),
+  'disabled': (
+    'base': #c5c8ce
+  ),
+  'divider': (
+    'base': #e8eaec
+  ),
+  'info': (
+    'base': #2db7f5
+  ),
+  'success': (
+    'base': #19be6b
+  ),
+  'warning': (
+    'base': #ff9900
+  ),
+  'error': (
+    'base': #ed4014
+  )
+);
+
+@function palette($colorName, $tone: 'base') {
+  @return map-get(map-get($palette, $colorName), $tone);
+}
+
+$size: (
+  'title': 24px,
+  'base': 14px,
+)

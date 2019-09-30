@@ -5,7 +5,7 @@
 
 const path = require('path')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
-const config = require('.')
+const config = require('./config')
 const NODE_ENV = process.env.NODE_ENV
 // style files regexes
 const preRegex = /\.(scss|sass)$/
@@ -33,7 +33,11 @@ module.exports = {
   resolve: {
     extensions: ['.js', '.jsx', '.json', '.css', '.scss'],
     alias: {
-      '@': resolve('')
+      'util': resolve('src/util/'),
+      'server':resolve('src/server/'),
+      'store': resolve('src/client/store'),
+      'react': resolve('node_modules/react'),
+      '@':resolve('src')
     }
   },
   module: {
@@ -41,10 +45,7 @@ module.exports = {
       {
         test: /\.(js|jsx)$/,
         loader: 'babel-loader',
-        exclude: /node_modules/,
-        options:{
-          "plugins": ["transform-async-to-generator"]
-        }
+        exclude: /node_modules/
       },
       {
         test: /\.css$/,
@@ -61,7 +62,7 @@ module.exports = {
         exclude: /node_modules/
       },
       {
-        test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
+        test: /\.(png|jpe?g|gif|svg|ico)(\?.*)?$/,
         loader: 'url-loader',
         options: {
           limit: 10000,
