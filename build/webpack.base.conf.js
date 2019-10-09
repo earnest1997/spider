@@ -36,7 +36,6 @@ module.exports = {
       'util': resolve('src/util/'),
       'server':resolve('src/server/'),
       'store': resolve('src/client/store'),
-      'react': resolve('node_modules/react'),
       '@':resolve('src')
     }
   },

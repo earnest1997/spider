@@ -1,26 +1,20 @@
-import React from 'react'
-import { connect } from 'util/store'
-import ListItem from '@/client/components'
+import React,{useContext} from 'react'
+import { ListItem } from '@/client/components'
+import {context} from '@/client/store'
 // import {functionType} from '../../util/ts'
-class Home extends React.PureComponent {
+import './index.scss'
 
-  render() {
-    const { hotArticlesList = [] } = this.props
-    console.log(hotArticlesList, 909)
+export const Home =()=> {
+    const {state:{hotArticlesList}}=useContext(context)
     return (
       <div className='home'>
-        <HotList list={hotArticlesList} handleClick={this.handleClick}/>
+        <main>
+          {hotArticlesList.map((item) => (
+            <ListItem {...item} key={item.id}/>
+          ))}
+        </main>
       </div>
     )
-  }
 }
 
-function HotList({ list }) {
-  return list.map(item => (
-   <ListItem {...item}/>
-  ))
-}
 
-export default connect((state) => ({
-  hotArticlesList: state.hotArticlesList,
-}))(Home)

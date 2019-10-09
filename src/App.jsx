@@ -1,19 +1,20 @@
 import React from 'react'
-import { Provider } from 'util/store'
-import { initState } from './client/store'
-import * as page from './client/page'
+import { ContextProvider } from '@/client/store'
+import * as page from '@/client/page'
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'
-import './client/style/index.scss'
+import '@/client/style/index.scss'
+import {Header} from '@/client/components'
 
 export const App = () => {
   return (
+    <ContextProvider>
     <Router>
+      <Header/>
       <Switch>
-        <Provider value={initState()}>
           <Route component={page.Home} exact strict path='/' />
-          <Route component={page.Article} path='/article:id'/>
-        </Provider>
+          <Route component={page.Article} path='/article/:id'/>
       </Switch>
     </Router>
+    </ContextProvider>
   )
 }

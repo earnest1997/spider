@@ -1,20 +1,35 @@
 import React from 'react'
-import {withRouter}from 'react-router-dom'
-function handleClick(id){
-  const {history} = this.props
-  history.push({pathname:'article',param:id})
-    }
+import { withRouter } from 'react-router-dom'
+import './index.scss'
 
-const ListItem=({author,time,title,id,detail,source})=>{
-  return  <div className='list-item' onClick={()=>handleClick(id)}>
-  <div className='row row-01'>
-    <span>来源于{source}</span>
-    <span>.{author}</span>
-    <span>.{time}</span>
-  </div>
-  <div className='row row-02'>{title}</div>
-  <div className='row row-03'>{detail}</div>
-</div>
+function handleClick(id, push) {
+  console.log(id, 'id')
+  push(`article/${id}`)
+}
+
+const ListItem = (props) => {
+  const {
+    history: { push },
+    author,
+    time,
+    title,
+    id,
+    detail,
+    source
+  } = props
+  return (
+    <div className='list-item' onClick={() => handleClick(id, push)} key={id}>
+      <div className='row row-01'>{title}</div>
+      <div className='row row-02'>
+        {' '}
+        <i className='icon ion-md-wifi'></i>&nbsp;<span>来源于{source}</span>
+        <span>{author}</span>
+        <i className='icon ion-md-time'></i>&nbsp;
+        <span>{time}</span>
+      </div>
+      <div className='row row-03'>{detail}</div>
+    </div>
+  )
 }
 
 export default withRouter(ListItem)

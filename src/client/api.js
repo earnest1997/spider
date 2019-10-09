@@ -5,4 +5,10 @@ export const getHotArticlesApi=async()=>{
 return get('/hotArticlesList')
 }
 
-// export const getSearchResult= ()
+export const getSearchResultApi= async(keywords)=>{
+return get('/searchResultList',{keywords})
+}
+
+export const getArticleDetailApi= async (id) =>{
+return get('/getArticleDetail',{id})
+}

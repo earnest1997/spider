@@ -12,14 +12,15 @@ _axios.interceptors.response.use(res=>{
   console.log(res,'res')
   return res
 },err=>{
-console.log('响应错误')
+console.log('响应错误',err)
 return Promise.reject(err)
 
 })
 
 export const get=async(url,params)=>{
-  return await _axios.get(url,params)
+  const {data} = await _axios.get(url,{params})
+  return data
 }
 export const post =async(url,body)=>{
-  return await _axios.post(url,{...body})
+  return await _axios.post(url,{body})
 }

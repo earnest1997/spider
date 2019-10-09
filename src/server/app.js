@@ -11,8 +11,20 @@ ctx.body={hotArticlesList:db.get('searchResList')}
 await next()
 })
 
-router.get('/searchResult',async (ctx,next)=>{
-  ctx.body="huuu"
+router.get('/searchResultList',async (ctx,next)=>{
+  const {keywords}=ctx.query
+  console.log(ctx.query,'jihhh',keywords)
+  process.execSync(`npm run node s @keywords _${keywords}`)
+  console.log(db.get('searchResult'),'huggg')
+  ctx.body={searchResultList:db.get('searchResult')}
+  await next()
+})
+router.get('/getArticleDetail',async(ctx,next)=>{
+  const {id} = ctx.query
+  const detail = db.get('articleDetail').find({id}).value()
+  console.log(detail,'detail',id)
+  const {content}=detail
+  ctx.body={articleDetail:content}
   await next()
 })
 app.use(async(ctx,next)=>{
