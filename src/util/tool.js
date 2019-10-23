@@ -21,9 +21,24 @@ function filterContent(html){
   return html.match(reg)&&html.replace(reg,'') || html
 }
 
+function filterObjWithInvalidVal(objArr){
+  return objArr.filter(obj=>Object.values(obj).every(val=>!!val))
+  // return objArr
+}
+
+function compose(...f){
+  if(f.length===1){
+    return f()
+  }else{
+    return f.reduce((a,b)=>(...args)=>a(b(...args)))
+  }
+}
+
 module.exports={
   flatten,
   genID,
   enumerate,
-  filterContent
+  filterContent,
+  filterObjWithInvalidVal,
+  compose
 }

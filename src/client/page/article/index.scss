@@ -1,0 +1,24 @@
+@import '@/client/style';
+
+.article{
+  main{
+   box-shadow:  0 1px 3px rgba(26,26,26,.1);
+   padding: 20px;
+  }
+  .row{
+    margin-bottom: 15px;
+    &-01{
+      font-size: 30px;
+      font-weight: 500;
+    }
+    &-02{
+      width: 100%;
+      text-align: left;
+      color: palette('content','gray');
+    }
+    &-03{
+      text-indent: 10px;
+      line-height:1.8;
+    }
+  }
+}

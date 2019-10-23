@@ -14,13 +14,16 @@ const Article = (props) => {
     getArticleDetail(id)
   }, [])
   const { title, content, author } = articleDetail
+  console.log(articleDetail,'art')
   return (
-    <div className='article-container'>
+    <div className='wrapper article'>
+    <main>
       <div className='row row-01'>{title}</div>
       <div className='row row-02'>
-        <span>{author}</span>
+        <span>作者:&nbsp;{author}</span>
       </div>
       <div className='row row-03'>{content}</div>
+      </main>
     </div>
   )
 }

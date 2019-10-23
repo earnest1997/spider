@@ -1,0 +1,21 @@
+$breakpoints:(
+  'xs':'screen and ( max-width:480px)',
+  // ipad
+  'sm':'screen and (max-width:768px)',
+  // pc
+  'md':'screen and ( max-width:992px)',
+  // imac
+  'lg':'screen and (max-width:1200px)'
+);
+
+@mixin respond-to($breakpoint:'sm'){
+  $query:map-get($breakpoints,$breakpoint);
+
+  @if not $query {
+    @error 'No value found for `#{$breakpoint}`.';
+  }
+
+  @media #{if(type-of($query) == 'string', unquote($query), inspect($query))} {
+    @content;
+  }
+}

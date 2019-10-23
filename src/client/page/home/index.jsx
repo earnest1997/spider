@@ -5,9 +5,9 @@ import {context} from '@/client/store'
 import './index.scss'
 
 export const Home =()=> {
-    const {state:{hotArticlesList}}=useContext(context)
+    const {hotArticlesList}=useContext(context)
     return (
-      <div className='home'>
+      <div className='wrapper home'>
         <main>
           {hotArticlesList.map((item) => (
             <ListItem {...item} key={item.id}/>

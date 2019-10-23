@@ -26,7 +26,6 @@ const getSearchListSaga = (dispatch) => async (keywords) => {
 
 const getArticleDetailSaga = (dispatch) => async (id) => {
   const articleDetail = await getArticleDetailApi(id)
-  console.log(articleDetail,89)
   dispatch({ type: 'setArticleDetail', articleDetail })
 }
 
@@ -34,18 +33,17 @@ function combineSagas() {
   const initialState = {
     hotArticlesList: [],
     searchResultList: [],
-    articleDetail: {}
+    articleDetail: {title:'', content:'', author:''}
   }
   const [state, dispatch] = useReducer(reducers, initialState)
   useEffect(() => {
     getHotArticlesApi().then((data) => {
-      console.log(data,'dat')
       const { hotArticlesList } = data
       dispatch({ type: 'setHotArticleList', hotArticlesList })
     }).catch(err=>{console.log(err,'fetchhot err')})
   }, [])
   return {
-    state,
+    ...state,
     ...{ getSearchList: getSearchListSaga(dispatch) },
     ...{ getArticleDetail: getArticleDetailSaga(dispatch) }
   }
