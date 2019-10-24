@@ -2,7 +2,7 @@ const { jianshuBaseConfig, juejinBaseConfig } = require('./baseConfig')
 
 const juejinHotConfig={
   baseUrl:'https://juejin.im/welcome/frontend?sort=weekly_hottest',
-  maxLength:3,
+  maxLength:30,
   baseSelector:'.entry-list',
   excludeChildSelector:'.ad-entry-list',
   data:{

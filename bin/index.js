@@ -43,7 +43,7 @@ class Spider {
   start() {
 
     this[`${this.operation}Article`](this.options)
-    fs.truncateSync(path.resolve(__dirname,'./db.json'),0,function(){console.log('unset db')})
+    // fs.truncateSync(path.resolve(__dirname,'./db.json'),0,function(){console.log('unset db')})
     // this.searchArticle(this.options)
   }
 
@@ -100,9 +100,9 @@ class Spider {
       )
       urlsWithKeys.push(urlsWithKey)
     }
-    console.log(urlsWithKeys)
+    // console.log(urlsWithKeys)
     const flattenArr = compose(filterObjWithInvalidVal,flatten)(urlsWithKeys)
-    this.fetchArticleDetail(flattenArr,'searchResList')
+    this.fetchArticleDetail(flattenArr,'searchResList','searchArticleDetailList')
   }
 
   async fetchHotArticle() {
@@ -125,11 +125,10 @@ class Spider {
         k,
         'hotResList'
       )
-      console.log('hot')
       urlsWithKeys.push(urlsWithKey)
     }
     const flattenArr =compose(filterObjWithInvalidVal,flatten)(urlsWithKeys)
-    this.fetchArticleDetail(flattenArr,'hotResList')
+    this.fetchArticleDetail(flattenArr,'hotResList','hotArticleDetailList')
   }
 
   handleFetchContent(_html, baseSelector, maxLength, data, baseUrl, k,listName) {
@@ -152,9 +151,7 @@ class Spider {
 
   // @functionType(type.IgenerateChild)
   generateChild(count, data, rootElement, baseUrl, k, listName) {
-    console.log(count,'kk')
     const resList = Array.from({ length: count }).map((item, index) => {
-      console.log(index,'inde')
       const id = genID()
       let content = { source: sourceMap[k], id }
       for (let k in data) {
@@ -169,7 +166,6 @@ class Spider {
             .find(selector)
             .eq(index)
             .attr('href')
-          console.log(selector,url,'uel')
           const rootUrl=_baseUrl? _baseUrl:baseUrl
           content[k] = !!url ? `${rootUrl.slice(0, baseUrl.length - 1)}${url}`:undefined
         }
@@ -184,18 +180,16 @@ class Spider {
       }
     })
     const validResList=filterObjWithInvalidVal(resList)
-    db.get(listName)
-    .set(validResList)
+    db.set(listName,validResList)
     .write()
      return filterObjWithInvalidVal(validResList)
   }
 
-  async fetchArticleDetail(arr,listName) {
+  async fetchArticleDetail(arr,listName,detailListName) {
     const browser = await puppeteer.launch({ headless: true })
     const abstractLength = 250
     for (let [index, item] of Object.entries(arr)) {
       const { url, k, id, author, title } = item
-      console.log(item,'item')
       const detail = { source: sourceMap[k], id, author, title }
       const {
         data: { detail: detailConfig }
@@ -227,9 +221,7 @@ class Spider {
       }
       const abstract = `${detail.content.substring(0, abstractLength)}...`
       db.set(`${listName}[${index}].detail`, abstract).write()
-      db.get('articleDetail')
-        .push(detail)
-        .write()
+      db.set(detailListName,detail).write()
     }
   }
 }

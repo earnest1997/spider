@@ -5,24 +5,41 @@ const app = new koa()
 const router=require('koa-router')()
 const process=require('child_process')
 
-
-router.get('/hotArticlesList',async(ctx,next)=>{
-ctx.body={hotArticlesList:db.get('hotResList')}
+/**
+ * 获取热门文章列表
+ */
+router.get('/getHotArticleList',async(ctx,next)=>{
+ctx.body={hotArticleList:db.get('hotResList')}
 await next()
 })
-
-router.get('/searchResultList',async (ctx,next)=>{
+/**
+ * 获取搜索文章结果列表
+ */
+router.get('/getSearchResultList',async (ctx,next)=>{
   const {keywords}=ctx.query
   process.execSync(`npm run node s @keywords _${keywords}`)
-  ctx.body={searchResultList:db.get('searchResult')}
+  ctx.body={searchResultList:db.get('searchResList')}
   await next()
 })
-router.get('/getArticleDetail',async(ctx,next)=>{
+/**
+ * 获取热门文章详情
+ */
+router.get('/getHotArticleDetail',async(ctx,next)=>{
   const {id} = ctx.query
-  const detail = db.get('articleDetail').find({id}).value()
+  const detail = db.get('hotArticleDetailList').find({id}).value()
+  ctx.body=detail
+  await next()
+})
+/**
+ * 获取搜索文章详情
+ */
+router.get('/getSearchArticleDetail',async(ctx,next)=>{
+  const {id} = ctx.query
+  const detail = db.get('searchArticleDetailList').find({id}).value()
   ctx.body={...detail}
   await next()
 })
+// 跨域设置
 app.use(async(ctx,next)=>{
   ctx.response.set({
     'Access-Control-Allow-Origin':'*',

@@ -5,11 +5,11 @@ import {context} from '@/client/store'
 import './index.scss'
 
 export const Home =()=> {
-    const {hotArticlesList}=useContext(context)
+    const {hotArticleList}=useContext(context)
     return (
       <div className='wrapper home'>
         <main>
-          {hotArticlesList.map((item) => (
+          {hotArticleList.map((item) => (
             <ListItem {...item} key={item.id}/>
           ))}
         </main>

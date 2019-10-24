@@ -13,6 +13,7 @@ export const App = () => {
       <Switch>
           <Route component={page.Home} exact strict path='/' />
           <Route component={page.Article} path='/article/:id'/>
+          <Route component={page.Search} path='/search'/>
       </Switch>
     </Router>
     </ContextProvider>
