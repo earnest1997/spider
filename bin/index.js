@@ -167,7 +167,7 @@ class Spider {
             .eq(index)
             .attr('href')
           const rootUrl=_baseUrl? _baseUrl:baseUrl
-          content[k] = !!url ? `${rootUrl.slice(0, baseUrl.length - 1)}${url}`:undefined
+          content[k] = url ? `${rootUrl.slice(0, baseUrl.length - 1)}${url}`:undefined
         }
       }
       return {
@@ -218,7 +218,7 @@ class Spider {
         if (!rootElement.find(v.selector).html()) {
           continue
         }
-        detail[k] = filterContent(rootElement.find(v.selector).html())
+        detail[k] = rootElement.find(v.selector).html()
       }
       const {content:_content}=detail
       const abstract = `${_content.substring(0, abstractLength)}...`

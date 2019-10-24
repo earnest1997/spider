@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react'
+import React, {  useEffect, useContext } from 'react'
 import { withRouter } from 'react-router-dom'
 import { context } from '@/client/store'
 import './index.scss'
@@ -24,7 +24,7 @@ const Article = (props) => {
       <div className='row row-02'>
         <span>作者:&nbsp;{author}</span>
       </div>
-      <div className='row row-03'>{content}</div>
+      <div className='row row-03' dangerouslySetInnerHTML={{_html:content}}/>
       </main>
     </div>
   )
