@@ -12,7 +12,8 @@ export const App = () => {
       <Header/>
       <Switch>
           <Route component={page.Home} exact strict path='/' />
-          <Route component={page.Article} path='/article/:id'/>
+          <Route component={page.Article} path='/search/article/:id'/>
+          <Route path='/hot/article/:id' component={page.Article}/>
           <Route component={page.Search} path='/search'/>
       </Switch>
     </Router>

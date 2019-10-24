@@ -2,9 +2,9 @@ import React from 'react'
 import { withRouter } from 'react-router-dom'
 import './index.scss'
 
-function handleClick(id, push) {
+function handleClick(id,type, push) {
   console.log(id, 'id')
-  push(`article/${id}`)
+  push(`/${type}/article/${id}`)
 }
 
 const ListItem = (props) => {
@@ -15,10 +15,11 @@ const ListItem = (props) => {
     title,
     id,
     detail,
-    source
+    source,
+    type
   } = props
   return (
-    <div className='list-item' onClick={() => handleClick(id, push)} key={id}>
+    <div className='list-item' onClick={() => handleClick(id,type, push)} key={id}>
       <div className='row row-01'>{title}</div>
       <div className='row row-02'>
         <i className='icon ion-md-wifi'></i>&nbsp;<span>来源于{source}</span>

@@ -5,8 +5,8 @@ const adapters = new FileSync(path.resolve(__dirname, './db.json'))
 const db = low(adapters)
 db.defaults({
   searchResList: [],
-  hotArticleDetail: [],
-  searchArticleDetail: [],
+  hotArticleDetailList: [],
+  searchArticleDetailList: [],
   hotResList: []
 }).write()
 

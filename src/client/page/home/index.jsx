@@ -10,7 +10,7 @@ export const Home =()=> {
       <div className='wrapper home'>
         <main>
           {hotArticleList.map((item) => (
-            <ListItem {...item} key={item.id}/>
+            <ListItem {...item} key={item.id} type='hot'/>
           ))}
         </main>
       </div>

@@ -1,8 +1,7 @@
 import {
   getSearchResultListApi,
   getHotArticleListApi,
-  getHotArticleDetailApi,
-  getSearchArticleDetailApi
+  getArticleDetailApi,
 } from '@/client/service'
 import React, { useEffect, useReducer, createContext } from 'react'
 
@@ -10,20 +9,17 @@ export const context = createContext({})
 const reducers = (state, action) => {
   const {
     type,
-    getHotArticleList,
-    getSearchResultList,
-    hotArticleDetail,
-    searchResultDetail
+    hotArticleList,
+    searchResultList,
+    articleDetail
   } = action
   switch (type) {
     case 'setHotArticleList':
-      return { ...state, ...{ getHotArticleList } }
+      return { ...state, ...{ hotArticleList } }
     case 'setSearchResultList':
-      return { ...state, ...{ getSearchResultList } }
-    case 'setHotArticleDetail':
-      return { ...state, ...{ hotArticleDetail } }
-    case 'setSearchResultDetail':
-      return { ...state, ...searchResultDetail }
+      return { ...state, ...{ searchResultList } }
+    case 'setArticleDetail':
+      return { ...state, ...{ articleDetail } }
     default:
       return state
   }
@@ -33,20 +29,22 @@ const getSearchListSaga = (dispatch) => async (keywords) => {
   const getSearchResultList = await getSearchResultListApi(keywords)
   dispatch({ type: 'setgetSearchResultList', getSearchResultList })
 }
+// 获取文章详情
+
 // // 热门文章列表
 // const getHotArticleListSaga=(dispatch) => async (id) => {
 //   const articleDetail = await getHotArticleListApi(id)
 //   dispatch({ type: 'setArticleDetail', articleDetail })
 // }
 // 热门文章详情
-const getHotArticleDetailSaga = (dispatch) => async (id) => {
-  const hotArticleDetail = await getHotArticleDetailApi(id)
-  dispatch({ type: 'setHotArticleDetail', hotArticleDetail })
-}
-// 搜索文章详情
-const getSearchResultDetailSaga = (dispatch) => async (id) => {
-  const searchResultDetail = await getSearchArticleDetailApi(id)
-  dispatch({ type: 'setSearchResultDetail', searchResultDetail })
+// const getHotArticleDetailSaga = (dispatch) => async (id) => {
+//   const hotArticleDetail = await getHotArticleDetailApi(id)
+//   dispatch({ type: 'setHotArticleDetail', hotArticleDetail })
+// }
+// 获取文章详情
+const getArticleDetailSaga = (dispatch) => async (id,type) => {
+  const articleDetail = await getArticleDetailApi(id,type)
+  dispatch({ type: 'setArticleDetail', articleDetail })
 }
 
 function combineSagas() {
@@ -57,6 +55,7 @@ function combineSagas() {
   }
   const [state, dispatch] = useReducer(reducers, initialState)
   useEffect(() => {
+
     getHotArticleListApi()
       .then((data) => {
         const { hotArticleList } = data
@@ -65,19 +64,18 @@ function combineSagas() {
       .catch((err) => {
         console.log(err, 'fetchhot err')
       })
-    getHotArticleDetailApi()
-      .then(hotArticleDetail=>{
-        dispatch({type:'setHotArticleDetail',hotArticleDetail})
-      })
-      .catch(err=>{
-        console.log(err,'fetch hot detail err')
-      })
+    // getArticleDetailApi()
+    //   .then(articleDetail=>{
+    //     dispatch({type:'setArticleDetail',articleDetail})
+    //   })
+    //   .catch(err=>{
+    //     console.log(err,'fetch hot detail err')
+    //   })
   }, [])
   return {
     ...state,
     ...{ getSearchList: getSearchListSaga(dispatch) },
-    ...{ getHotArticleDetail: getHotArticleDetailSaga(dispatch) },
-    ...{ getSearchArticleDetail: getSearchResultDetailSaga(dispatch) }
+    ...{ getArticleDetail: getArticleDetailSaga(dispatch) }
   }
 }
 export const ContextProvider = ({ children }) => {

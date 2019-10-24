@@ -22,23 +22,29 @@ router.get('/getSearchResultList',async (ctx,next)=>{
   await next()
 })
 /**
- * 获取热门文章详情
+ * 获取文章详情
  */
-router.get('/getHotArticleDetail',async(ctx,next)=>{
-  const {id} = ctx.query
-  const detail = db.get('hotArticleDetailList').find({id}).value()
+router.get('/getArticleDetail',async(ctx,next)=>{
+  const {id,type='hot'} = ctx.query
+  let detail
+  if(type === 'hot'){
+   detail = db.get('hotArticleDetailList').find({id}).value()
+  }
+  else{
+    detail=db.get('searchArticleDetailList').find({id}).value()
+  }
   ctx.body=detail
   await next()
 })
 /**
  * 获取搜索文章详情
  */
-router.get('/getSearchArticleDetail',async(ctx,next)=>{
-  const {id} = ctx.query
-  const detail = db.get('searchArticleDetailList').find({id}).value()
-  ctx.body={...detail}
-  await next()
-})
+// router.get('/getSearchArticleDetail',async(ctx,next)=>{
+//   const {id} = ctx.query
+//   const detail = db.get('searchArticleDetailList').find({id}).value()
+//   ctx.body={...detail}
+//   await next()
+// })
 // 跨域设置
 app.use(async(ctx,next)=>{
   ctx.response.set({

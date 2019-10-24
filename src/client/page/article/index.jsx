@@ -6,12 +6,14 @@ import './index.scss'
 const Article = (props) => {
   const {
     match: {
-      params: { id }
+      params: { id },
+      path
     }
   } = props
+  const type=path.split('/')[1]
   const { getArticleDetail, articleDetail } = useContext(context)
   useEffect(() => {
-    getArticleDetail(id)
+    getArticleDetail(id,type)
   }, [])
   const { title, content, author } = articleDetail
   console.log(articleDetail,'art')

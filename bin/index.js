@@ -186,6 +186,7 @@ class Spider {
   }
 
   async fetchArticleDetail(arr,listName,detailListName) {
+    db.set(detailListName,[]).write()
     const browser = await puppeteer.launch({ headless: true })
     const abstractLength = 250
     for (let [index, item] of Object.entries(arr)) {
@@ -219,9 +220,10 @@ class Spider {
         }
         detail[k] = filterContent(rootElement.find(v.selector).html())
       }
-      const abstract = `${detail.content.substring(0, abstractLength)}...`
+      const {content:_content}=detail
+      const abstract = `${_content.substring(0, abstractLength)}...`
       db.set(`${listName}[${index}].detail`, abstract).write()
-      db.set(detailListName,detail).write()
+      db.get(detailListName).push({content:_content,id,author,title}).write()
     }
   }
 }
