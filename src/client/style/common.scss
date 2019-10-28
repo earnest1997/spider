@@ -57,7 +57,7 @@ html, body {
   overflow: hidden;
   main {
     @include flex(center,center,column);
-    max-width: 80vw;
+    width: 80vw;
     margin: 0 auto;
     margin-top: r(100);
     color: #000;

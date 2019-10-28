@@ -24,7 +24,7 @@ const Article = (props) => {
       <div className='row row-02'>
         <span>作者:&nbsp;{author}</span>
       </div>
-      <div className='row row-03' dangerouslySetInnerHTML={{_html:content}}/>
+      <div className='row row-03 article-content' dangerouslySetInnerHTML={{__html:content}}/>
       </main>
     </div>
   )

@@ -17,7 +17,7 @@ const { baseConfigMap, sourceMap } = require(path.resolve(
 ))
 const { hotMap } = require(path.resolve(__dirname, './config/hotConfig.js'))
 // tool
-const { flatten, genID, filterContent,filterObjWithInvalidVal,compose } = require(path.resolve(
+const { flatten, genID, filterClass,filterObjWithInvalidVal,compose } = require(path.resolve(
   __dirname,
   '../src/util/tool.js'
 ))
@@ -242,6 +242,6 @@ for (let [k, v] of Object.entries(optionsKeyArr)) {
   options[key] = optionsValArr[k].replace('_', '')
 }
 console.log(operation,argArr,'opreatio')
-// const spider = new Spider(operation, options)
-const spider = new Spider('fetchHot')
+const spider = new Spider(operation, options)
+// const spider = new Spider('fetchHot')
 spider.start()

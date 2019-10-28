@@ -4,6 +4,8 @@ const db=require(path.resolve(__dirname,'../../bin/db.js'))
 const app = new koa()
 const router=require('koa-router')()
 const process=require('child_process')
+const util=require('util')
+
 
 /**
  * 获取热门文章列表
@@ -17,7 +19,10 @@ await next()
  */
 router.get('/getSearchResultList',async (ctx,next)=>{
   const {keywords}=ctx.query
-  process.execSync(`npm run node s @keywords _${keywords}`)
+  console.log('ddd',Date.now())
+  const child=process.exec(`npm run node s @keywords _${keywords}`)
+  await util.promisify(child)
+  console.log(88877,Date.now())
   ctx.body={searchResultList:db.get('searchResList')}
   await next()
 })

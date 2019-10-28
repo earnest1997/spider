@@ -41,6 +41,7 @@ module.exports = {
       "react/jsx-no-duplicate-props": 2, //防止在JSX中重复的props
       "react/jsx-no-literals": 0, //防止使用未包装的JSX字符串
       "react/jsx-no-undef": 1, //在JSX中禁止未声明的变量
+      "require-atomic-updates":"off"
   },
   "settings": {
       "import/ignore": [

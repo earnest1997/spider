@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const _axios=axios.create({baseURL:'http://0.0.0.0:3000'})
+const _axios=axios.create({baseURL:'http://0.0.0.0:3000',timeout:4000})
 _axios.interceptors.request.use(config=>{
   return config
 },err=>{

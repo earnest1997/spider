@@ -1,3 +1,4 @@
+const child=require('child_process')
 const flatten=(arg)=>{
   return arg.reduce((prev,next)=>{
     return prev.concat(Array.isArray(next) && flatten(next) || next)
@@ -16,8 +17,13 @@ function* enumerate(obj) {
     index++
   }
 
-function filterContent(html){
+function filterHtmlTag(html){
   const reg=/(\<\/?[a-z]+[^\>]*\>|\\n|\s)/g
+  return html.match(reg)&&html.replace(reg,'') || html
+}
+
+function filterClass(html){
+  const reg=/class=\\"[\w-]+\\"/g
   return html.match(reg)&&html.replace(reg,'') || html
 }
 
@@ -34,11 +40,26 @@ function compose(...f){
   }
 }
 
+function execPromise(command) {
+  return new Promise(function(resolve, reject) {
+      child.exec(command, (error, stdout) => {
+          if (error) {
+              reject(error);
+              return;
+          }
+console.log(88899)
+          resolve(stdout.trim());
+      });
+  });
+}
+
 module.exports={
   flatten,
   genID,
   enumerate,
-  filterContent,
+  filterHtmlTag,
+  filterClass,
   filterObjWithInvalidVal,
-  compose
+  compose,
+  execPromise
 }

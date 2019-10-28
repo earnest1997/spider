@@ -27,7 +27,7 @@ const ListItem = (props) => {
         <i className='icon ion-md-time'></i>&nbsp;
         <span>{time}</span>
       </div>
-      <div className='row row-03' dangerouslySetInnerHTML={{_html:detail}}/>
+      <div className='row row-03' dangerouslySetInnerHTML={{__html:detail}}/>
     </div>
   )
 }
