@@ -17,13 +17,14 @@ const { baseConfigMap, sourceMap } = require(path.resolve(
 ))
 const { hotMap } = require(path.resolve(__dirname, './config/hotConfig.js'))
 // tool
-const { flatten, genID, filterClass,filterObjWithInvalidVal,compose } = require(path.resolve(
-  __dirname,
-  '../src/util/tool.js'
-))
+const {
+  flatten,
+  genID,
+  filterObjWithInvalidVal,
+  compose,
+} = require(path.resolve(__dirname, '../src/util/tool.js'))
 
-const { functionType } = require(path.resolve(__dirname, '../src/util/ts.js'))
-const type = require('./type.js')
+const srcHtml = path.resolve(__dirname, '../src/index.tpl.html')
 // @classType(type.Ispider)
 class Spider {
   /**
@@ -41,7 +42,6 @@ class Spider {
     // })
   }
   start() {
-
     this[`${this.operation}Article`](this.options)
     // fs.truncateSync(path.resolve(__dirname,'./db.json'),0,function(){console.log('unset db')})
     // this.searchArticle(this.options)
@@ -71,7 +71,7 @@ class Spider {
         baseSelector,
         maxLength,
         data,
-        isNewTab
+        isNewTab,
       } = v
       await page.goto(baseUrl)
       await page.type(searchInput, keywords, { delay: 100 }).catch((err) => {
@@ -101,8 +101,15 @@ class Spider {
       urlsWithKeys.push(urlsWithKey)
     }
     // console.log(urlsWithKeys)
-    const flattenArr = compose(filterObjWithInvalidVal,flatten)(urlsWithKeys)
-    this.fetchArticleDetail(flattenArr,'searchResList','searchArticleDetailList')
+    const flattenArr = compose(
+      filterObjWithInvalidVal,
+      flatten
+    )(urlsWithKeys)
+    this.fetchArticleDetail(
+      flattenArr,
+      'searchResList',
+      'searchArticleDetailList'
+    )
   }
 
   async fetchHotArticle() {
@@ -110,7 +117,13 @@ class Spider {
     const page = await browser.newPage()
     let urlsWithKeys = []
     for (let [k, v] of hotMap.entries()) {
-      const { baseUrl, maxLength, baseSelector, data } = v
+      const { baseUrl, maxLength, baseSelector, data, cssSource } = v
+      const cssLink = '<link href=' + cssSource + 'rel="stylesheet">'
+      const htmlContent = fs.readFileSync(srcHtml, 'utf-8').replace(/<title>/g, ($1) => {
+          return cssLink + $1
+        })
+      console.log(htmlContent,'gg')
+      fs.writeFile(srcHtml, htmlContent,'utf-8')
       page.goto(baseUrl)
       await page.waitForSelector(baseSelector).catch((err) => {
         console.log(err, `hot baseselector timeout`)
@@ -127,13 +140,24 @@ class Spider {
       )
       urlsWithKeys.push(urlsWithKey)
     }
-    const flattenArr =compose(filterObjWithInvalidVal,flatten)(urlsWithKeys)
-    this.fetchArticleDetail(flattenArr,'hotResList','hotArticleDetailList')
+    const flattenArr = compose(
+      filterObjWithInvalidVal,
+      flatten
+    )(urlsWithKeys)
+    this.fetchArticleDetail(flattenArr, 'hotResList', 'hotArticleDetailList')
   }
 
-  handleFetchContent(_html, baseSelector, maxLength, data, baseUrl, k,listName) {
+  handleFetchContent(
+    _html,
+    baseSelector,
+    maxLength,
+    data,
+    baseUrl,
+    k,
+    listName
+  ) {
     const $ = cheerio.load(_html, {
-      decodeEntities: false
+      decodeEntities: false,
     })
     const rootElement = $(baseSelector)
     const articleLength = rootElement.children().length
@@ -155,7 +179,7 @@ class Spider {
       const id = genID()
       let content = { source: sourceMap[k], id }
       for (let k in data) {
-        const { selector,baseUrl:_baseUrl='' } = data[k]
+        const { selector, baseUrl: _baseUrl = '' } = data[k]
         if (k !== 'url') {
           content[k] = rootElement
             .find(selector)
@@ -166,8 +190,10 @@ class Spider {
             .find(selector)
             .eq(index)
             .attr('href')
-          const rootUrl=_baseUrl? _baseUrl:baseUrl
-          content[k] = url ? `${rootUrl.slice(0, baseUrl.length - 1)}${url}`:undefined
+          const rootUrl = _baseUrl ? _baseUrl : baseUrl
+          content[k] = url
+            ? `${rootUrl.slice(0, baseUrl.length - 1)}${url}`
+            : undefined
         }
       }
       return {
@@ -176,24 +202,23 @@ class Spider {
         id,
         author: content.author,
         title: content.title,
-        time:content.time
+        time: content.time,
       }
     })
-    const validResList=filterObjWithInvalidVal(resList)
-    db.set(listName,validResList)
-    .write()
-     return filterObjWithInvalidVal(validResList)
+    const validResList = filterObjWithInvalidVal(resList)
+    db.set(listName, validResList).write()
+    return filterObjWithInvalidVal(validResList)
   }
 
-  async fetchArticleDetail(arr,listName,detailListName) {
-    db.set(detailListName,[]).write()
+  async fetchArticleDetail(arr, listName, detailListName) {
+    db.set(detailListName, []).write()
     const browser = await puppeteer.launch({ headless: true })
     const abstractLength = 250
     for (let [index, item] of Object.entries(arr)) {
       const { url, k, id, author, title } = item
       const detail = { source: sourceMap[k], id, author, title }
       const {
-        data: { detail: detailConfig }
+        data: { detail: detailConfig },
       } = baseConfigMap.get(k)
       const page = await browser.newPage()
       await page.goto(url).catch((err) => {
@@ -209,7 +234,7 @@ class Spider {
         console.log(err, 'fetch2 err')
       })
       const $ = cheerio.load(content, {
-        decodeEntities: false
+        decodeEntities: false,
       })
       const rootElement = $(detailBaseSelector)
       const _detailConfig = { ...detailConfig }
@@ -220,17 +245,19 @@ class Spider {
         }
         detail[k] = rootElement.find(v.selector).html()
       }
-      const {content:_content}=detail
+      const { content: _content } = detail
       const abstract = `${_content.substring(0, abstractLength)}...`
       db.set(`${listName}[${index}].detail`, abstract).write()
-      db.get(detailListName).push({content:_content,id,author,title}).write()
+      db.get(detailListName)
+        .push({ content: _content, id, author, title })
+        .write()
     }
   }
 }
 // npm run node s @keywords _node
 const operationMap = {
   s: 'search',
-  h: 'fetchHot'
+  h: 'fetchHot',
 }
 let argArr = [...process.argv]
 const operation = operationMap[argArr[2]]
@@ -241,7 +268,6 @@ for (let [k, v] of Object.entries(optionsKeyArr)) {
   const key = v.replace('@', '')
   options[key] = optionsValArr[k].replace('_', '')
 }
-console.log(operation,argArr,'opreatio')
 const spider = new Spider(operation, options)
 // const spider = new Spider('fetchHot')
 spider.start()

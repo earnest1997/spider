@@ -5,6 +5,8 @@ const app = new koa()
 const router=require('koa-router')()
 const process=require('child_process')
 const util=require('util')
+const schedule=require('node-schedule')
+const process=require('child_process')
 
 
 /**
@@ -63,4 +65,13 @@ app.use(router.allowedMethods())
 
 app.listen(3000,()=>{
   console.log(3000)
+})
+// 周一 周四 周末8点更新
+const rule=new schedule.RecurrenceRule()
+rule.dayOfWeek = [0, new schedule.Range(4, 6)];
+rule.hour = 8;
+rule.minute = 0;
+schedule.scheduleJob(rule,function(){
+  process.exec('npm run node h')
+  console.log(`更新时间:${new Date.getDay()}`)
 })
