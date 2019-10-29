@@ -7,6 +7,7 @@ const shelljs = require('shelljs')
 const cheerio = require('cheerio')
 const puppeteer = require('puppeteer')
 const db = require(path.resolve(__dirname, './db.js'))
+// 配置
 const { searchMap } = require(path.resolve(
   __dirname,
   './config/searchConfig.js'
@@ -22,7 +23,7 @@ const {
   genID,
   filterObjWithInvalidVal,
   compose,
-} = require(path.resolve(__dirname, '../src/util/tool.js'))
+} = require(path.resolve(__dirname, './tool.js'))
 
 const srcHtml = path.resolve(__dirname, '../src/index.tpl.html')
 // @classType(type.Ispider)
@@ -42,6 +43,8 @@ class Spider {
     // })
   }
   start() {
+    console.log(this.operation,this.options,9088)
+    db.set('test','sss')
     this[`${this.operation}Article`](this.options)
     // fs.truncateSync(path.resolve(__dirname,'./db.json'),0,function(){console.log('unset db')})
     // this.searchArticle(this.options)
@@ -57,12 +60,13 @@ class Spider {
       console.log('dir create fail')
     }
   }
-
+// 搜索文章
   async searchArticle() {
     const { keywords } = this.options
     const browser = await puppeteer.launch({ headless: true })
     const page = await browser.newPage()
     let urlsWithKeys = []
+    console.log('seach',1)
     for (let [k, v] of searchMap.entries()) {
       const {
         baseUrl,
@@ -90,7 +94,7 @@ class Spider {
         console.log(err, '4')
       })
       const _html = await page.content()
-      const urlsWithKey = this.handleFetchContent(
+      const urlsWithKey = this.formatParam(
         _html,
         baseSelector,
         maxLength,
@@ -100,7 +104,6 @@ class Spider {
       )
       urlsWithKeys.push(urlsWithKey)
     }
-    // console.log(urlsWithKeys)
     const flattenArr = compose(
       filterObjWithInvalidVal,
       flatten
@@ -111,25 +114,24 @@ class Spider {
       'searchArticleDetailList'
     )
   }
-
+// 获取热门文章
   async fetchHotArticle() {
     const browser = await puppeteer.launch({ headless: true })
     const page = await browser.newPage()
     let urlsWithKeys = []
     for (let [k, v] of hotMap.entries()) {
-      const { baseUrl, maxLength, baseSelector, data, cssSource } = v
-      const cssLink = '<link href=' + cssSource + 'rel="stylesheet">'
-      const htmlContent = fs.readFileSync(srcHtml, 'utf-8').replace(/<title>/g, ($1) => {
+      const { baseUrl, maxLength, baseSelector, data, cssSource} = v
+      const cssLink = `<link href="${cssSource}" rel="stylesheet">`
+      const htmlContent = fs.readFileSync(srcHtml, 'utf-8').replace(/<title>/, ($1) => {
           return cssLink + $1
         })
-      console.log(htmlContent,'gg')
       fs.writeFile(srcHtml, htmlContent,'utf-8')
       page.goto(baseUrl)
       await page.waitForSelector(baseSelector).catch((err) => {
         console.log(err, `hot baseselector timeout`)
       })
       const _html = await page.content()
-      const urlsWithKey = this.handleFetchContent(
+      const urlsWithKey = this.formatParam(
         _html,
         baseSelector,
         maxLength,
@@ -147,7 +149,18 @@ class Spider {
     this.fetchArticleDetail(flattenArr, 'hotResList', 'hotArticleDetailList')
   }
 
-  handleFetchContent(
+  /**
+   * 获取首页列表数据前格式化参数
+   * @param {string} _html 爬取页面的html
+   * @param {string} baseSelector 父级选择器
+   * @param {number} maxLength 最大爬取数量
+   * @param {object} data 爬去的数据
+   * @param {string} baseUrl 网站地址
+   * @param {string} k 网站源
+   * @param {string} listName 列表名称
+   */
+
+  formatParam(
     _html,
     baseSelector,
     maxLength,
@@ -162,7 +175,7 @@ class Spider {
     const rootElement = $(baseSelector)
     const articleLength = rootElement.children().length
     const listCount = articleLength < maxLength ? articleLength : maxLength
-    let urlsWithKey = this.generateChild(
+    let urlsWithKey = this.generateList(
       listCount,
       data,
       rootElement,
@@ -173,8 +186,17 @@ class Spider {
     return urlsWithKey
   }
 
-  // @functionType(type.IgenerateChild)
-  generateChild(count, data, rootElement, baseUrl, k, listName) {
+  // @functionType(type.IgenerateList)
+  /**
+   * 写入列表数据
+   * @param {number} count 最大列表长度
+   * @param {object} data 需要爬的数据
+   * @param {node} rootElement 根元素
+   * @param {string} baseUrl 页面父级地址
+   * @param {string} 网站源
+   * @param {string} listName 列表名称 写入数据库
+   */
+  generateList(count, data, rootElement, baseUrl, k, listName) {
     const resList = Array.from({ length: count }).map((item, index) => {
       const id = genID()
       let content = { source: sourceMap[k], id }
@@ -209,13 +231,19 @@ class Spider {
     db.set(listName, validResList).write()
     return filterObjWithInvalidVal(validResList)
   }
-
-  async fetchArticleDetail(arr, listName, detailListName) {
+/**
+ * 获取文章详情
+ * @param {object} data 爬取详情需要的数据
+ * @param {string} listName 首页列表名称
+ * @param {string} detailListName 详情列表
+ */
+  async fetchArticleDetail(data, listName, detailListName) {
+    console.log('eash','3')
     db.set(detailListName, []).write()
     const browser = await puppeteer.launch({ headless: true })
     const abstractLength = 250
-    for (let [index, item] of Object.entries(arr)) {
-      const { url, k, id, author, title } = item
+    for (let [index, item] of Object.entries(data)) {
+      const { url, k, id, author, title,className } = item
       const detail = { source: sourceMap[k], id, author, title }
       const {
         data: { detail: detailConfig },
@@ -249,12 +277,13 @@ class Spider {
       const abstract = `${_content.substring(0, abstractLength)}...`
       db.set(`${listName}[${index}].detail`, abstract).write()
       db.get(detailListName)
-        .push({ content: _content, id, author, title })
+        .push({ content: _content, id, author, title,className })
         .write()
     }
   }
 }
 // npm run node s @keywords _node
+// 根据命令行参数执行对应的命令
 const operationMap = {
   s: 'search',
   h: 'fetchHot',
@@ -269,5 +298,4 @@ for (let [k, v] of Object.entries(optionsKeyArr)) {
   options[key] = optionsValArr[k].replace('_', '')
 }
 const spider = new Spider(operation, options)
-// const spider = new Spider('fetchHot')
 spider.start()

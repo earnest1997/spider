@@ -9,5 +9,6 @@ db.defaults({
   searchArticleDetailList: [],
   hotResList: []
 }).write()
-
+// db.set('user.name', 'typicode')
+// .write()
 module.exports = db

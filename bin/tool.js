@@ -1,11 +1,10 @@
-const child=require('child_process')
-const flatten=(arg)=>{
+function flatten(arg){
   return arg.reduce((prev,next)=>{
     return prev.concat(Array.isArray(next) && flatten(next) || next)
   },[])
 }
 
-const genID =(length = 5) => {
+function genID (length = 5) {
   return Number(Math.random().toString().substr(3,length) + Date.now()).toString(36);
   }
 
@@ -40,19 +39,6 @@ function compose(...f){
   }
 }
 
-function execPromise(command) {
-  return new Promise(function(resolve, reject) {
-      child.exec(command, (error, stdout) => {
-          if (error) {
-              reject(error);
-              return;
-          }
-console.log(88899)
-          resolve(stdout.trim());
-      });
-  });
-}
-
 module.exports={
   flatten,
   genID,
@@ -60,6 +46,5 @@ module.exports={
   filterHtmlTag,
   filterClass,
   filterObjWithInvalidVal,
-  compose,
-  execPromise
+  compose
 }

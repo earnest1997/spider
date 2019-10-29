@@ -6,7 +6,6 @@ const router=require('koa-router')()
 const process=require('child_process')
 const util=require('util')
 const schedule=require('node-schedule')
-const process=require('child_process')
 
 
 /**
@@ -22,8 +21,12 @@ await next()
 router.get('/getSearchResultList',async (ctx,next)=>{
   const {keywords}=ctx.query
   console.log('ddd',Date.now())
-  const child=process.exec(`npm run node s @keywords _${keywords}`)
-  await util.promisify(child)
+  const promisifyExec=util.promisify(process.exec)
+  await promisifyExec(`npm run node s @keywords _${keywords}`).then((a)=>{
+    console.log('success',a)
+  }).catch((err)=>{
+    console.log(9000,err,'fail')
+  })
   console.log(88877,Date.now())
   ctx.body={searchResultList:db.get('searchResList')}
   await next()
@@ -43,15 +46,7 @@ router.get('/getArticleDetail',async(ctx,next)=>{
   ctx.body=detail
   await next()
 })
-/**
- * 获取搜索文章详情
- */
-// router.get('/getSearchArticleDetail',async(ctx,next)=>{
-//   const {id} = ctx.query
-//   const detail = db.get('searchArticleDetailList').find({id}).value()
-//   ctx.body={...detail}
-//   await next()
-// })
+
 // 跨域设置
 app.use(async(ctx,next)=>{
   ctx.response.set({
