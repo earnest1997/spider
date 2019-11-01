@@ -23,7 +23,8 @@ const {
   genID,
   filterObjWithInvalidVal,
   compose,
-} = require(path.resolve(__dirname, './tool.js'))
+  omit
+} = require(path.resolve(__dirname, '../src/util/tool.js'))
 
 const srcHtml = path.resolve(__dirname, '../src/index.tpl.html')
 // @classType(type.Ispider)
@@ -35,7 +36,7 @@ class Spider {
    */
   constructor(operation, options = { keywords: 'node' }) {
     this.operation = operation
-    this.options = options
+    this.options =options
     // return new Proxy(this, {
     //   set: (target, key, value) => {
     //     return true
@@ -43,11 +44,9 @@ class Spider {
     // })
   }
   start() {
-    console.log(this.operation,this.options,9088)
-    db.set('test','sss')
     this[`${this.operation}Article`](this.options)
     // fs.truncateSync(path.resolve(__dirname,'./db.json'),0,function(){console.log('unset db')})
-    // this.searchArticle(this.options)
+    // this.searchArticle( { keywords: 'node' })
   }
 
   createStorePath() {
@@ -60,13 +59,12 @@ class Spider {
       console.log('dir create fail')
     }
   }
-// 搜索文章
+  // 搜索文章
   async searchArticle() {
     const { keywords } = this.options
     const browser = await puppeteer.launch({ headless: true })
     const page = await browser.newPage()
     let urlsWithKeys = []
-    console.log('seach',1)
     for (let [k, v] of searchMap.entries()) {
       const {
         baseUrl,
@@ -75,7 +73,7 @@ class Spider {
         baseSelector,
         maxLength,
         data,
-        isNewTab,
+        isNewTab
       } = v
       await page.goto(baseUrl)
       await page.type(searchInput, keywords, { delay: 100 }).catch((err) => {
@@ -100,7 +98,8 @@ class Spider {
         maxLength,
         data,
         baseUrl,
-        k
+        k,
+        'searchResList'
       )
       urlsWithKeys.push(urlsWithKey)
     }
@@ -114,18 +113,20 @@ class Spider {
       'searchArticleDetailList'
     )
   }
-// 获取热门文章
+  // 获取热门文章
   async fetchHotArticle() {
     const browser = await puppeteer.launch({ headless: true })
     const page = await browser.newPage()
     let urlsWithKeys = []
     for (let [k, v] of hotMap.entries()) {
-      const { baseUrl, maxLength, baseSelector, data, cssSource} = v
+      const { baseUrl, maxLength, baseSelector, data, cssSource } = v
       const cssLink = `<link href="${cssSource}" rel="stylesheet">`
-      const htmlContent = fs.readFileSync(srcHtml, 'utf-8').replace(/<title>/, ($1) => {
+      const htmlContent = fs
+        .readFileSync(srcHtml, 'utf-8')
+        .replace(/<title>/, ($1) => {
           return cssLink + $1
         })
-      fs.writeFile(srcHtml, htmlContent,'utf-8')
+      fs.writeFile(srcHtml, htmlContent, 'utf-8')
       page.goto(baseUrl)
       await page.waitForSelector(baseSelector).catch((err) => {
         console.log(err, `hot baseselector timeout`)
@@ -160,17 +161,9 @@ class Spider {
    * @param {string} listName 列表名称
    */
 
-  formatParam(
-    _html,
-    baseSelector,
-    maxLength,
-    data,
-    baseUrl,
-    k,
-    listName
-  ) {
+  formatParam(_html, baseSelector, maxLength, data, baseUrl, k, listName) {
     const $ = cheerio.load(_html, {
-      decodeEntities: false,
+      decodeEntities: false
     })
     const rootElement = $(baseSelector)
     const articleLength = rootElement.children().length
@@ -200,8 +193,10 @@ class Spider {
     const resList = Array.from({ length: count }).map((item, index) => {
       const id = genID()
       let content = { source: sourceMap[k], id }
-      for (let k in data) {
-        const { selector, baseUrl: _baseUrl = '' } = data[k]
+      const _data=omit(['baseClassName','baseSelectorToGetClassName'],data)
+      const {baseClassName='empty',baseSelectorToGetClassName='empty'}=data
+      for (let k in _data) {
+        const { selector, baseUrl: _baseUrl = '' } = _data[k]
         if (k !== 'url') {
           content[k] = rootElement
             .find(selector)
@@ -225,28 +220,29 @@ class Spider {
         author: content.author,
         title: content.title,
         time: content.time,
+        baseClassName,
+        baseSelectorToGetClassName
       }
     })
     const validResList = filterObjWithInvalidVal(resList)
-    db.set(listName, validResList).write()
-    return filterObjWithInvalidVal(validResList)
+    db.set(listName,[...db.get(listName),...validResList]).write()
+    return validResList
   }
-/**
- * 获取文章详情
- * @param {object} data 爬取详情需要的数据
- * @param {string} listName 首页列表名称
- * @param {string} detailListName 详情列表
- */
+  /**
+   * 获取文章详情
+   * @param {object} data 爬取详情需要的数据
+   * @param {string} listName 首页列表名称
+   * @param {string} detailListName 详情列表
+   */
   async fetchArticleDetail(data, listName, detailListName) {
-    console.log('eash','3')
     db.set(detailListName, []).write()
     const browser = await puppeteer.launch({ headless: true })
     const abstractLength = 250
     for (let [index, item] of Object.entries(data)) {
-      const { url, k, id, author, title,className } = item
+      const { url, k, id, author, title, baseClassName,baseSelectorToGetClassName } = item
       const detail = { source: sourceMap[k], id, author, title }
       const {
-        data: { detail: detailConfig },
+        data: { detail: detailConfig }
       } = baseConfigMap.get(k)
       const page = await browser.newPage()
       await page.goto(url).catch((err) => {
@@ -262,9 +258,13 @@ class Spider {
         console.log(err, 'fetch2 err')
       })
       const $ = cheerio.load(content, {
-        decodeEntities: false,
+        decodeEntities: false
       })
       const rootElement = $(detailBaseSelector)
+      const _baseClassName = baseClassName!=='empty'
+      ? baseClassName
+      : rootElement.find(baseSelectorToGetClassName) &&
+        rootElement.find(baseSelectorToGetClassName).attr('class')
       const _detailConfig = { ...detailConfig }
       delete _detailConfig.baseSelector
       for (let [k, v] of Object.entries(_detailConfig)) {
@@ -277,16 +277,16 @@ class Spider {
       const abstract = `${_content.substring(0, abstractLength)}...`
       db.set(`${listName}[${index}].detail`, abstract).write()
       db.get(detailListName)
-        .push({ content: _content, id, author, title,className })
+        .push({ content: _content, id, author, title, baseClassName:_baseClassName })
         .write()
     }
   }
 }
-// npm run node s @keywords _node
+// node './bin/index.js' s @keywords _node
 // 根据命令行参数执行对应的命令
 const operationMap = {
   s: 'search',
-  h: 'fetchHot',
+  h: 'fetchHot'
 }
 let argArr = [...process.argv]
 const operation = operationMap[argArr[2]]

@@ -1,4 +1,4 @@
-import {get,post} from 'util/http'
+import {get} from 'util/http'
 
 /**
  * 获取热门文章

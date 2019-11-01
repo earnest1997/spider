@@ -1,21 +1,23 @@
 const { jianshuBaseConfig, juejinBaseConfig } = require('./baseConfig')
-
+const {mergeDeep} =require('../../src/util/tool.js')
 const searchMap = new Map()
 
 const jianSearchConfig = {
   searchInput: '.search-input',
   searchBtn: '.search-btn',
   isNewTab: true,
-  // baseSelector: '.search-content .note-list>li'
+  maxLength:2
 }
 
 const jueSearchConfig = {
   searchInput: '.search-input',
   searchBtn: '.search-icon',
-  isNewTab: false
+  isNewTab: false,
+  maxLength:3
 }
 
-searchMap.set('jianshu', {  ...jianshuBaseConfig,...jianSearchConfig })
-searchMap.set('juejin', {  ...juejinBaseConfig,...jueSearchConfig })
+searchMap.set('juejin', mergeDeep({...juejinBaseConfig},{...jueSearchConfig}))
+searchMap.set('jianshu',mergeDeep({...jianshuBaseConfig},{...jianSearchConfig}))
 
-module.exports = { searchMap }
+const searchConfig={minLength:1,maxLength:5}
+module.exports = { searchMap,searchConfig }

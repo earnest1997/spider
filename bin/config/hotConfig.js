@@ -1,4 +1,5 @@
 const { jianshuBaseConfig, juejinBaseConfig } = require('./baseConfig')
+const {mergeDeep} =require('../../src/util/tool.js')
 
 const juejinHotConfig = {
   baseUrl: 'https://juejin.im/welcome/frontend?sort=weekly_hottest',
@@ -6,7 +7,6 @@ const juejinHotConfig = {
   baseSelector: '.entry-list',
   excludeChildSelector: '.ad-entry-list',
   data: {
-    className: 'article-content',
     author: {
       selector: '.user-popover-box',
     },
@@ -26,6 +26,5 @@ const juejinHotConfig = {
 }
 
 const hotMap = new Map()
-hotMap.set('juejin', { ...juejinBaseConfig, ...juejinHotConfig })
-
+hotMap.set('juejin', mergeDeep(juejinBaseConfig, juejinHotConfig))
 module.exports = { hotMap }

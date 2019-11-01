@@ -1,22 +1,26 @@
 import React from 'react'
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'
 import { ContextProvider } from '@/client/store'
 import * as page from '@/client/page'
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'
+import { Header } from '@/client/components'
+import { ErrorBoundary } from '@/client/page'
 import '@/client/style/index.scss'
-import {Header} from '@/client/components'
 
 export const App = () => {
   return (
-    <ContextProvider>
-    <Router>
-      <Header/>
-      <Switch>
-          <Route component={page.Home} exact strict path='/' />
-          <Route component={page.Article} path='/search/article/:id'/>
-          <Route path='/hot/article/:id' component={page.Article}/>
-          <Route component={page.Search} path='/search'/>
-      </Switch>
-    </Router>
-    </ContextProvider>
+    <ErrorBoundary>
+      <ContextProvider>
+        <Router>
+          <Header />
+          <Switch>
+            <Route exact strict path='/' component={page.Home}/>
+            <Route exact strict path='/search/article/:id' component={page.Article} />
+            <Route path='/hot/article/:id' component={page.Article} />
+            <Route path='/search' component={page.Search}/>
+            <Route path='*' component={page.NotFound}/>
+          </Switch>
+        </Router>
+      </ContextProvider>
+    </ErrorBoundary>
   )
 }

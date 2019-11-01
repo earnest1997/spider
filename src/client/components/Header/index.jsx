@@ -1,24 +1,45 @@
-import React, { useState, useContext } from 'react'
+import React, { useState, useContext,useEffect,useCallback,useRef } from 'react'
 import { CSSTransition } from 'react-transition-group'
+import {Hover} from 'perspective.js'
 import { context } from '@/client/store'
-
-import '../Input'
-import './index.scss'
+import {withRouter} from 'react-router-dom'
 import { Input } from '../Input'
+import './index.scss'
 
-function handleEnter(e, isInputVisible, setIsInputVisible, getSearchList) {
-
-  if (e.nativeEvent.keyCode === 13) {
-    setIsInputVisible(!isInputVisible)
-    getSearchList(e.target.value)
-  }
-}
-const Header = (props) => {
+const Header = ({history}) => {
   const [isInputVisible, setIsInputVisible] = useState(false)
   const {getSearchList}=useContext(context)
+  const headerRef=useRef()
+  const handleEnter =useCallback((e, isInputVisible, setIsInputVisible, getSearchList)=>{
+    if (e.nativeEvent.keyCode === 13) {
+      setIsInputVisible(!isInputVisible)
+      getSearchList(e.target.value)
+      history.push(`/search?q=${e.target.value}`)
+    }
+  },[history])
+  const initAnimation=useCallback((dom)=>{
+    console.log(dom)
+    new Hover(dom,{
+  max:1,
+  scale:1.1,
+  perspective:500,
+  layers:[
+    {
+      multiple:0.1,
+      reverseTranslate:true
+    },{
+      multiple:0.2,
+      reverseTranslate:true
+    }
+  ]
+    })
+  },[])
+  useEffect(()=>{
+    // initAnimation(headerRef.current)
+  },[initAnimation])
   return (
-    <div className='header'>
-      <div className='row row-01'>
+    <div className='header' ref={headerRef}>
+      <div className='row row-01'  data-hover-layer='0'>
         <i
           className='icon ion-md-search'
           onClick={() => {
@@ -46,9 +67,9 @@ const Header = (props) => {
           )) || <></>}
         </CSSTransition>
       </div>
-      <h2 className='row row-02'>FE News</h2>
+      <h2 className='row row-02' data-hover-layer='1'>FE News</h2>
     </div>
   )
 }
 
-export default Header
+export default withRouter(Header)
