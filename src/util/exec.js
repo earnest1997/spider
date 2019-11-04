@@ -1,4 +1,6 @@
-export function copy(text, onSuccess, onError) {
+import { Message } from '@/client/components'
+
+export function copy(text) {
   if ('execCommand' in document) {
     const dom = document.createElement('input')
     dom.value = text
@@ -6,8 +8,8 @@ export function copy(text, onSuccess, onError) {
     dom.style.display = 'none'
     document.body.appendChild(dom)
     document.execCommand('copy')
-    onSuccess()
+    Message.success('复制成功')
   } else {
-    onError()
+    Message.error('复制失败')
   }
 }

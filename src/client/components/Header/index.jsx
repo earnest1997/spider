@@ -1,74 +1,62 @@
-import React, { useState, useContext,useEffect,useCallback,useRef } from 'react'
-import { CSSTransition } from 'react-transition-group'
-import {Hover} from 'perspective.js'
+import React, { useContext, useEffect, useCallback, useRef } from 'react'
+import { Hover } from 'perspective.js'
 import { context } from '@/client/store'
-import {withRouter} from 'react-router-dom'
+import { withRouter } from 'react-router-dom'
 import { Input } from '../Input'
+import { useScroll } from '@/util'
 import './index.scss'
 
-const Header = ({history}) => {
-  const [isInputVisible, setIsInputVisible] = useState(false)
-  const {getSearchList}=useContext(context)
-  const headerRef=useRef()
-  const handleEnter =useCallback((e, isInputVisible, setIsInputVisible, getSearchList)=>{
-    if (e.nativeEvent.keyCode === 13) {
-      setIsInputVisible(!isInputVisible)
-      getSearchList(e.target.value)
-      history.push(`/search?q=${e.target.value}`)
-    }
-  },[history])
-  const initAnimation=useCallback((dom)=>{
-    console.log(dom)
-    new Hover(dom,{
-  max:1,
-  scale:1.1,
-  perspective:500,
-  layers:[
-    {
-      multiple:0.1,
-      reverseTranslate:true
-    },{
-      multiple:0.2,
-      reverseTranslate:true
-    }
-  ]
+const Header = ({ history }) => {
+  const { getSearchList } = useContext(context)
+  const headerRef = useRef()
+  const handleEnter = useCallback(
+    (e, getSearchList) => {
+      if (e.nativeEvent.keyCode === 13) {
+        getSearchList(e.target.value)
+        history.push(`/search?q=${e.target.value}`)
+      }
+    },
+    [history]
+  )
+  const initAnimation = useCallback((dom) => {
+    new Hover(dom, {
+      max: 1,
+      scale: 1.1,
+      perspective: 500,
+      layers: [
+        {
+          multiple: 0.1,
+          reverseTranslate: true
+        },
+        {
+          multiple: 0.2,
+          reverseTranslate: true
+        }
+      ]
     })
-  },[])
-  useEffect(()=>{
+  }, [])
+  useEffect(() => {
     // initAnimation(headerRef.current)
-  },[initAnimation])
+  }, [initAnimation])
+  const isSwitchHeader = useScroll(280)
+  const classNames = !isSwitchHeader
+    ? 'header header-pc'
+    : 'header header-mobile'
+  const placeholder = <div style={{ height: 300, width: '100vw' }}></div>
   return (
-    <div className='header' ref={headerRef}>
-      <div className='row row-01'  data-hover-layer='0'>
-        <i
-          className='icon ion-md-search'
-          onClick={() => {
-            setIsInputVisible(!isInputVisible)
-          }}
-        ></i>
+    <>
+      {isSwitchHeader && placeholder}
+      <div className={classNames} ref={headerRef}>
+        <div className='row row-01' data-hover-layer='0'>
+          <i className='icon ion-md-search'></i>
 
-        <CSSTransition
-          in={isInputVisible}
-          className='input'
-          timeout={1000}
-          unmountOnExit
-        >
-          {(isInputVisible && (
-            <Input
-              onKeyUp={(e) =>
-                handleEnter(
-                  e,
-                  isInputVisible,
-                  setIsInputVisible,
-                  getSearchList
-                )
-              }
-            />
-          )) || <></>}
-        </CSSTransition>
+          <Input onKeyUp={(e) => handleEnter(e, getSearchList)} />
+        </div>
+        <h2 className='row row-02' data-hover-layer='1'>
+          FE News
+        </h2>
       </div>
-      <h2 className='row row-02' data-hover-layer='1'>FE News</h2>
-    </div>
+    </>
   )
 }
 

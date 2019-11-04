@@ -1,0 +1,53 @@
+@import '@/client/style';
+
+$prefixCls: '.component-message' !default;
+
+#{$prefixCls} {
+  @include transition;
+  @include flex;
+  box-shadow: shadow(2);
+  background: palette('background', 'light');
+  width: fit-content;
+  padding: 8px 16px;
+  border-radius: 4px;
+  margin: 18px 0 0;
+  font-weight: normal;
+  flex-shrink: 0;
+  color: palette('content');
+  &-icon {
+    margin-right: 12px;
+    transform: scale(1.3);
+  }
+  &-info &-icon {
+    color: palette('primary');
+  }
+  &-success &-icon {
+    color: palette('success');
+  }
+  &-error &-icon {
+    color: palette('error');
+  }
+  &-enter {
+    opacity: 0;
+    transform: translateY(-10px) rotateX(5deg);
+    &-active {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  &-exit {
+    opacity: 0;
+    transform: translateY(-10px) rotateX(5deg);
+  }
+  &-root {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 0;
+    z-index: 109;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+  }
+}

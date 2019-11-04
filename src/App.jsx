@@ -7,6 +7,7 @@ import { ErrorBoundary } from '@/client/page'
 import '@/client/style/index.scss'
 
 export const App = () => {
+
   return (
     <ErrorBoundary>
       <ContextProvider>

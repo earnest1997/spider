@@ -1,10 +1,9 @@
-import {get} from 'util/http'
+import {get} from '@/util/http'
 
 /**
  * 获取热门文章
  */
 export const getHotArticleListApi=async()=>{
-  console.log(90988)
 return get('/getHotArticleList')
 }
 /**
@@ -12,7 +11,6 @@ return get('/getHotArticleList')
  * @param {*} keywords 
  */
 export const getSearchResultListApi= async(keywords)=>{
-  console.log(9090)
 return get('/getSearchResultList',{keywords})
 }
 /**

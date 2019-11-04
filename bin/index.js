@@ -36,7 +36,7 @@ class Spider {
    */
   constructor(operation, options = { keywords: 'node' }) {
     this.operation = operation
-    this.options =options
+    this.options = options
     // return new Proxy(this, {
     //   set: (target, key, value) => {
     //     return true
@@ -193,8 +193,11 @@ class Spider {
     const resList = Array.from({ length: count }).map((item, index) => {
       const id = genID()
       let content = { source: sourceMap[k], id }
-      const _data=omit(['baseClassName','baseSelectorToGetClassName'],data)
-      const {baseClassName='empty',baseSelectorToGetClassName='empty'}=data
+      const _data = omit(['baseClassName', 'baseSelectorToGetClassName'], data)
+      const {
+        baseClassName = 'empty',
+        baseSelectorToGetClassName = 'empty'
+      } = data
       for (let k in _data) {
         const { selector, baseUrl: _baseUrl = '' } = _data[k]
         if (k !== 'url') {
@@ -225,8 +228,25 @@ class Spider {
       }
     })
     const validResList = filterObjWithInvalidVal(resList)
-    db.set(listName,[...db.get(listName),...validResList]).write()
+    db.set(listName, [...db.get(listName), ...validResList]).write()
     return validResList
+  }
+  /**
+   * 设置code标签的index属性方便实现复制代码
+   * @param {string} content 
+   */
+  setCodeIndex(content) {
+    const reg01 = /(<code([\s\S])*?)(?=>)/g
+    const reg02 = /<[\s\S]*?>复制代码<\/\w+>/g
+    if (content.match(reg01) && content.match(reg02)) {
+      let index = 0
+      content.replace(reg01, ($1) => {
+        return $1 + 'data-index=' + index++
+      })
+      content.replace(reg02, ($1) => {
+        return $1 + 'data-index=' + index++
+      })
+    }
   }
   /**
    * 获取文章详情
@@ -239,7 +259,15 @@ class Spider {
     const browser = await puppeteer.launch({ headless: true })
     const abstractLength = 250
     for (let [index, item] of Object.entries(data)) {
-      const { url, k, id, author, title, baseClassName,baseSelectorToGetClassName } = item
+      const {
+        url,
+        k,
+        id,
+        author,
+        title,
+        baseClassName,
+        baseSelectorToGetClassName
+      } = item
       const detail = { source: sourceMap[k], id, author, title }
       const {
         data: { detail: detailConfig }
@@ -261,10 +289,11 @@ class Spider {
         decodeEntities: false
       })
       const rootElement = $(detailBaseSelector)
-      const _baseClassName = baseClassName!=='empty'
-      ? baseClassName
-      : rootElement.find(baseSelectorToGetClassName) &&
-        rootElement.find(baseSelectorToGetClassName).attr('class')
+      const _baseClassName =
+        baseClassName !== 'empty'
+          ? baseClassName
+          : rootElement.find(baseSelectorToGetClassName) &&
+            rootElement.find(baseSelectorToGetClassName).attr('class')
       const _detailConfig = { ...detailConfig }
       delete _detailConfig.baseSelector
       for (let [k, v] of Object.entries(_detailConfig)) {
@@ -275,13 +304,21 @@ class Spider {
       }
       const { content: _content } = detail
       const abstract = `${_content.substring(0, abstractLength)}...`
+      const detailWithCopyCode=this.setCodeIndex(_content)
       db.set(`${listName}[${index}].detail`, abstract).write()
       db.get(detailListName)
-        .push({ content: _content, id, author, title, baseClassName:_baseClassName })
+        .push({
+          content:detailWithCopyCode,
+          id,
+          author,
+          title,
+          baseClassName: _baseClassName
+        })
         .write()
     }
   }
 }
+
 // node './bin/index.js' s @keywords _node
 // 根据命令行参数执行对应的命令
 const operationMap = {

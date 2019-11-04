@@ -1,81 +1,97 @@
 import React, {
-  useState,
-  useImperativeHandle,
   createRef,
+  useImperativeHandle,
   forwardRef,
+  useState,
   useEffect
 } from 'react'
-import { createPortal, unmountComponentAtNode, render } from 'react-dom'
+import { createPortal, render, unmountComponentAtNode } from 'react-dom'
 import { CSSTransition } from 'react-transition-group'
 import classNames from 'classnames'
 import './index.scss'
 
-const prefixCls = 'component-message'
-const Message = forwardRef(({ info, type }, ref) => {
-  const [visible, setVisible] = useState(false)
-  const [infos,setInfo]=useState([])
-  const container = document.createElement('div')
-  container.className = `${prefixCls}-wrapper`
-
-  const maxInstanceCount=6
-  useEffect(() => {})
- const hide = () => {
-  setVisible(false)
+const prefixCls ='component-message'
+function getRootNode() {
+  const rootCls = `${prefixCls}-root`
+  let node = document.getElementsByClassName(rootCls)[0]
+  if (!node) {
+    node = document.createElement('div')
+    node.classList.add(rootCls)
+    document.body.appendChild(node)
+  }
+  return node
 }
-  const remove=()=>{
-    const _infos=[...infos]
-    _infos.shift()
-    setInfo([..._infos])
-  }
 
-  const add=()=>{
-    setInfo([[...infos],[...[info]]])
-  if(infos.length+1>=length){
-    remove()
-  }
-  }
-
-  const clean=()=>{
-    setTimeout(remove,100)
-  }
-
+export const Message = forwardRef(({ type, children, visible }, ref) => {
+  const messageCls = classNames(prefixCls, type && `${prefixCls}-${type}`)
+  const iconCls = classNames(
+    `${prefixCls}-icon`,
+    `icon ion-ios-${
+      {
+        info: 'alert',
+        success: 'checkmark-circle',
+        error: 'close-circle'
+      }[type]
+    }`
+  )
+  const [privateVisible, setPrivateVisible] = useState(false)
+  useEffect(() => {
+    setPrivateVisible(visible)
+  }, [visible])
   useImperativeHandle(ref, () => ({
-    hide:hide,
-   add: add,
-   remove: remove
+    hide: () => {
+      setPrivateVisible(false)
+    }
   }))
-const renderInfoNode=info=>( <CSSTransition in={visible} className='input' timeout={300} unmountOnExit>
-<div className={classNames(`${prefixCls}-${type}`)}>{info}</div>
-</CSSTransition>)
   return createPortal(
-   <>{infos.map(info=>renderInfoNode(info))}</> 
-    ,container
+    <CSSTransition
+      classNames={prefixCls}
+      timeout={400}
+      in={privateVisible}
+      unmountOnExit
+    >
+      <div className={messageCls}>
+        <i className={iconCls} />
+        <span className={`${prefixCls}-content`}>{children}</span>
+      </div>
+    </CSSTransition>,
+    getRootNode()
   )
 })
 
-function renderMessage(type, info) {
+function renderMessage({ type, children, duration = 3000 }) {
+  let mountNode = document.createElement('div')
   const ref = createRef()
-  const rootNode = document.body
-  const rootContainer = document.createElement('div')
-  rootNode.appendChild(rootContainer)
-
-  
-  render(<Message ref={ref} type={type} info={info}/>, rootContainer)
+  render(
+    <Message type={type} ref={ref} visible>
+      {children}
+    </Message>,
+    mountNode
+  )
   setTimeout(() => {
-    ref.current.clean()
-    unmountComponentAtNode(rootContainer)
-    document.removeChild(rootContainer)
-  }, 100)
+    ref.current.hide()
+    setTimeout(() => {
+      unmountComponentAtNode(mountNode)
+      mountNode = undefined
+    }, 400)
+  }, duration)
 }
 
-Message.success = function(info) {
-  renderMessage('success', info)
+
+Message.info = (content, duration) => {
+  renderMessage({ type: 'info', children: content, duration })
 }
 
-Message.error = function(info) {
-  renderMessage('error', info)
+Message.success = (content, duration) => {
+  renderMessage({ type: 'success', children: content, duration })
 }
 
-Message.warning = function(info) {
-  renderMessage('warning', info)
+Message.error = (content, duration) => {
+  renderMessage({ type: 'error', children: content, duration })
+}
+
+Message.displayName = 'Message'
+
+Message.defaultProps = {
+  type: 'info'
 }

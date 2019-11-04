@@ -55,7 +55,6 @@ function combineSagas() {
   }
   const [state, dispatch] = useReducer(reducers, initialState)
   useEffect(() => {
-
     getHotArticleListApi()
       .then((data) => {
         const { hotArticleList } = data

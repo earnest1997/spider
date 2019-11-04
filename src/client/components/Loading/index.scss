@@ -1,0 +1,60 @@
+@import '@/styles';
+
+$prefixCls: 'component-loading' !default;
+
+.#{$prefixCls} {
+  @include flex(center, center, column);
+  color: palette('primary');
+  &-mask {
+    @include transition;
+    @include component-reset;
+    @include flex;
+    z-index: 19;
+    &-enter {
+      opacity: 0;
+      &-active {
+        opacity: 1;
+      }
+    }
+    &-exit {
+      opacity: 0;
+    }
+    &-withchildren {
+      @extend %full-fill;
+      background: rgba(#fff, 0.64);
+      position: absolute;
+    }
+    &-full {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 39;
+      background: rgba(#fff, 0.64);
+    }
+  }
+  &-icon {
+    @include transition;
+    @include wh(20, 20);
+    background: palette('primary');
+    border-radius: 50%;
+    animation: 1s #{$prefixCls}-flash ease infinite;
+    &-wrapper {
+      @include flex;
+      @include wh(100, 100);
+    }
+  }
+}
+
+@keyframes #{$prefixCls}-flash {
+  from {
+    width: 0;
+    height: 0;
+  }
+  to {
+    width: 80px;
+    height: 80px;
+    opacity: 0;
+  }
+}

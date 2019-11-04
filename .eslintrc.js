@@ -44,7 +44,8 @@ module.exports = {
     'react-hooks/exhaustive-deps': 'warn',
     'react/jsx-uses-vars': 'warn',
     'react/prop-types': 0,
-    'react/display-name':0
+    'react/display-name':0,
+    'react/no-find-dom-node':0
   },
   settings: {
     'import/ignore': ['node_modules']

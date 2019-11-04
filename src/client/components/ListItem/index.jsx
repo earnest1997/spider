@@ -3,7 +3,6 @@ import { withRouter } from 'react-router-dom'
 import './index.scss'
 
 function handleClick(id,type, push) {
-  console.log(id, 'id')
   push(`/${type}/article/${id}`)
 }
 

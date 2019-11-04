@@ -1,60 +1,93 @@
 @import '@/client/style/index.scss';
 
 .header {
-  background: url('https://ftp.bmp.ovh/imgs/2019/10/3d499092089343c6.jpg');
-  width: 100vw;
-  height: r(400);
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-position-y: r(-100);
-  padding: r(100);
-  position: relative;
-  box-sizing: border-box;
-  .row {
-    &-01 {
-      @include flex;
-      min-width: r(40);
-      height: r(50);
+  input {
+    cursor: text;
+    width: 10rem;
+    height: 2rem;
+    color: #4e6e8e;
+    display: inline-block;
+    border: 1px solid #cfd4db;
+    border-radius: 1.3rem;
+    font-size: 0.9rem;
+    line-height: 2rem;
+    padding: 0 0.5rem 0 2rem;
+    outline: none;
+  }
+  .row-01 {
+    position: relative;
+    @include flex;
+    i {
       position: absolute;
-      right: r(100);
-      top: r(20);
-      i {
-        position: absolute;
-        left: r(10);
-        font-size: r(35);
-        z-index: 1;
-        opacity: 0.7;
-        color: palette('content', 'dark');
-        &:hover {
-          cursor: pointer;
-        }
-      }
-      .input {
-        width: 100%;
-        padding-left: r(40);
-        box-sizing: border-box;
-        &.enter {
-          opacity: 0.5;
-        }
-        &.enter-active {
-          transition: all 1s;
-          opacity: 1;
-        }
+      left: r(10);
+      font-size: r(35);
+      z-index: 1;
+      opacity: 0.7;
+      color: palette('content', 'dark');
+      &:hover {
+        cursor: pointer;
       }
     }
   }
-  h2 {
-    font-size: r(80);
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    -webkit-transform: translate(-50%, -50%);
-    transform: translate(-50%, -50%);
-    font-family: 'Varela Round', 'Microsoft YaHei', 'Source Sans Pro',
-      'Helvetica Neue', Menlo, Monaco, monospace, 'Lucida Console', sans-serif,
-      Helvetica, 'Hiragino Sans GB', 'Hiragino Sans GB W3',
-      Source Han Sans CN Regular, WenQuanYi Micro Hei, Arial, sans-serif;
-    color: palette('content', 'active');
-    font-weight: bold;
+  &-pc {
+    background: url('https://ftp.bmp.ovh/imgs/2019/10/3d499092089343c6.jpg');
+    width: 100vw;
+    height: r(400);
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position-y: r(-100);
+    padding: r(100);
+    position: relative;
+    box-sizing: border-box;
+    animation: fade 0.3s linear;
+    @keyframes fade {
+      from {
+        opacity: 0.4;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+    .row {
+      &-01 {
+        position: absolute;
+        min-width: r(40);
+        height: r(50);
+        right: r(100);
+        top: r(20);
+      }
+    }
+    h2 {
+      font-size: r(80);
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      -webkit-transform: translate(-50%, -50%);
+      transform: translate(-50%, -50%);
+      font-family: 'Varela Round', 'Microsoft YaHei', 'Source Sans Pro',
+        'Helvetica Neue', Menlo, Monaco, monospace, 'Lucida Console', sans-serif,
+        Helvetica, 'Hiragino Sans GB', 'Hiragino Sans GB W3',
+        Source Han Sans CN Regular, WenQuanYi Micro Hei, Arial, sans-serif;
+      color: palette('content', 'active');
+      font-weight: bold;
+    }
+  }
+  &-mobile {
+    z-index: 1;
+    @include flex(space-between, center, row-reverse);
+    padding: 10px 20px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: palette('primary');
+    .input {
+      width: 100%;
+      padding-left: r(40);
+      box-sizing: border-box;
+    }
+    h2 {
+      color: #fff;
+    }
   }
 }
