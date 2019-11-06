@@ -7,6 +7,7 @@ const shelljs = require('shelljs')
 const cheerio = require('cheerio')
 const puppeteer = require('puppeteer')
 const db = require(path.resolve(__dirname, './db/index.js'))
+const cluster = require('cluster')
 // 配置
 const { searchMap } = require(path.resolve(
   __dirname,
@@ -23,10 +24,10 @@ const {
   genID,
   filterObjWithInvalidVal,
   compose,
-  omit
+  omit,
 } = require(path.resolve(__dirname, '../src/util/tool.js'))
 // 错误记录
-const {ErrorLog}=require(path.resolve(__dirname,'./log/index.js'))
+const { ErrorLog } = require(path.resolve(__dirname, './log/index.js'))
 
 const srcHtml = path.resolve(__dirname, '../src/index.tpl.html')
 // @classType(type.Ispider)
@@ -47,7 +48,7 @@ class Spider {
   }
   start() {
     this[`${this.operation}Article`](this.options)
-    this.ErrorLog=new ErrorLog
+    this.ErrorLog = new ErrorLog()
     // fs.truncateSync(path.resolve(__dirname,'./db.json'),0,function(){console.log('unset db')})
     // this.searchArticle( { keywords: 'node' })
   }
@@ -76,15 +77,15 @@ class Spider {
         baseSelector,
         maxLength,
         data,
-        isNewTab
+        isNewTab,
       } = v
       await page.goto(baseUrl)
       await page.type(searchInput, keywords, { delay: 100 }).catch((err) => {
-        this.ErrorLog.push(err,{searchInput},'搜索关键字失败')
+        this.ErrorLog.push(err, { searchInput }, '搜索关键字失败')
       })
 
       await page.click(searchBtn).catch((err) => {
-        this.ErrorLog.push(err,{searchBtn},'点击搜索按钮失败')
+        this.ErrorLog.push(err, { searchBtn }, '点击搜索按钮失败')
       })
       if (isNewTab) {
         await new Promise((resolve) => page.once('popup', resolve))
@@ -92,7 +93,7 @@ class Spider {
         await page.goto(pages.slice(-1)[0].url())
       }
       await page.waitForSelector(baseSelector).catch((err) => {
-        this.ErrorLog.push(err,{baseSelector},'等待搜索列表父级元素失败')
+        this.ErrorLog.push(err, { baseSelector }, '等待搜索列表父级元素失败')
       })
       const _html = await page.content()
       const urlsWithKey = this.formatParam(
@@ -130,12 +131,12 @@ class Spider {
           return cssLink + $1
         })
       fs.writeFile(srcHtml, htmlContent, 'utf-8')
-      await page.goto(baseUrl).catch(err=>{
-        this.ErrorLog.push(err,{baseUrl},'跳转热门页面失败')
+      await page.goto(baseUrl).catch((err) => {
+        this.ErrorLog.push(err, { baseUrl }, '跳转热门页面失败')
       })
       await page.waitForSelector(baseSelector).catch((err) => {
-        console.log(err,'fetch hot')
-        this.ErrorLog.push(err,{baseSelector},'等待热门页面父级元素失败')
+        console.log(err, 'fetch hot')
+        this.ErrorLog.push(err, { baseSelector }, '等待热门页面父级元素失败')
       })
       const _html = await page.content()
       const urlsWithKey = this.formatParam(
@@ -169,7 +170,7 @@ class Spider {
 
   formatParam(_html, baseSelector, maxLength, data, baseUrl, k, listName) {
     const $ = cheerio.load(_html, {
-      decodeEntities: false
+      decodeEntities: false,
     })
     const rootElement = $(baseSelector)
     const articleLength = rootElement.children().length
@@ -202,7 +203,7 @@ class Spider {
       const _data = omit(['baseClassName', 'baseSelectorToGetClassName'], data)
       const {
         baseClassName = 'empty',
-        baseSelectorToGetClassName = 'empty'
+        baseSelectorToGetClassName = 'empty',
       } = data
       for (let k in _data) {
         const { selector, baseUrl: _baseUrl = '' } = _data[k]
@@ -230,7 +231,7 @@ class Spider {
         title: content.title,
         time: content.time,
         baseClassName,
-        baseSelectorToGetClassName
+        baseSelectorToGetClassName,
       }
     })
     const validResList = filterObjWithInvalidVal(resList)
@@ -238,8 +239,8 @@ class Spider {
     return validResList
   }
   /**
-   * 设置code标签的index属性方便实现复制代码
-   * @param {string} content 
+   * 设置code标签的index属性
+   * @param {string} content
    */
   setCodeIndex(content) {
     const reg01 = /(<code([\s\S])*?)(?=>)/g
@@ -272,28 +273,32 @@ class Spider {
         author,
         title,
         baseClassName,
-        baseSelectorToGetClassName
+        baseSelectorToGetClassName,
       } = item
       const detail = { source: sourceMap[k], id, author, title }
       const {
-        data: { detail: detailConfig }
+        data: { detail: detailConfig },
       } = baseConfigMap.get(k)
       const page = await browser.newPage()
       await page.goto(url).catch((err) => {
-        console.log(err,url, '页面跳转失败')
-        this.ErrorLog.push(err,{url},'文章详情页面跳转失败')
+        console.log(err, url, '页面跳转失败')
+        this.ErrorLog.push(err, { url }, '文章详情页面跳转失败')
       })
       const { baseSelector: detailBaseSelector } = detailConfig
       await page
         .waitForSelector(detailBaseSelector, { visible: true })
         .catch((err) => {
-          this.ErrorLog.push(err,{detailBaseSelector},'等待详情页面父级元素失败')
+          this.ErrorLog.push(
+            err,
+            { detailBaseSelector },
+            '等待详情页面父级元素失败'
+          )
         })
       const content = await page.content().catch((err) => {
-        this.ErrorLog.push(err,{},'获取详情页面内容失败')
+        this.ErrorLog.push(err, {}, '获取详情页面内容失败')
       })
       const $ = cheerio.load(content, {
-        decodeEntities: false
+        decodeEntities: false,
       })
       const rootElement = $(detailBaseSelector)
       const _baseClassName =
@@ -311,17 +316,27 @@ class Spider {
       }
       const { content: _content } = detail
       const abstract = `${_content.substring(0, abstractLength)}...`
-      const detailWithCopyCode=this.setCodeIndex(_content)
+      const detailWithCopyCode = this.setCodeIndex(_content)
       db.set(`${listName}[${index}].detail`, abstract).write()
       db.get(detailListName)
         .push({
-          content:detailWithCopyCode,
+          content: detailWithCopyCode,
           id,
           author,
           title,
-          baseClassName: _baseClassName
+          baseClassName: _baseClassName,
         })
         .write()
+    }
+    this.endExec()
+  }
+
+  endExec() {
+    this.ErrorLog.end()
+    if (cluster.isMaster) {
+      return
+    } else {
+      process.send('end')
     }
   }
 }
@@ -330,7 +345,7 @@ class Spider {
 // 根据命令行参数执行对应的命令
 const operationMap = {
   s: 'search',
-  h: 'fetchHot'
+  h: 'fetchHot',
 }
 let argArr = [...process.argv]
 const operation = operationMap[argArr[2]]

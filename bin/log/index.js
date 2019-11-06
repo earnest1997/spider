@@ -14,7 +14,7 @@ exports.ErrorLog = class {
   }
   end() {
     let log = {}
-    const createTime = dateFormat(new Date.now())
+    const createTime = dateFormat(Date.now(),'yyyy-MM-dd:hh:mm:ss')
     log.createTime = createTime
     log.errors = this.logDb
     log = JSON.stringify(log)

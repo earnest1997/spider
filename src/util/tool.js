@@ -118,14 +118,18 @@ function createChainedFunction() {
   };
 }
 
+function fixZero(date){
+  return (date+'').padStart(2,'0')
+}
+
 function dateFormat(time,format){
   const date=new Date(time)
   return format.replace(/yyyy/gi,date.getFullYear())
-  .replace(/MM/gi,(date.getFullMonth()+1).padStart(2,'0'))
-  .replace(/dd/gi,(date.getDate()).padStart(2,'0'))
-  .replace(/hh/gi,date.getHours().padStart(2,'0'))
-  .replace(/mm/gi,date.getMinutes().padStart(2,'0'))
-  .replace(/ss/gi,date.getSeconds().padStart(2,'0'))
+  .replace(/MM/gi,fixZero(date.getMonth()+1))
+  .replace(/dd/gi,fixZero(date.getDate()))
+  .replace(/hh/gi,fixZero(date.getHours()))
+  .replace(/mm/gi,fixZero(date.getMinutes()))
+  .replace(/ss/gi,fixZero(date.getSeconds()))
 }
 
 module.exports={

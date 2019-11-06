@@ -1,6 +1,6 @@
 const koa = require('koa')
 const path = require('path')
-const db = require(path.resolve(__dirname, '../../bin/db.js'))
+const db = require(path.resolve(__dirname, '../../bin/db/index.js'))
 const app = new koa()
 const router = require('koa-router')()
 const process = require('child_process')
@@ -54,9 +54,11 @@ function getSearchResultFromDb() {
  */
 router.get('/getSearchResultList', async (ctx, next) => {
   const { keywords } = ctx.query
-  process.exec(`node './bin/index.js' s @keywords _${keywords}`)
+  const child=process.exec(`node './bin/index.js' s @keywords _${keywords}`)
+  child.on('message',m=>{
+    console.log(m,'收到')
+  })
   const searchResult = await getSearchResultFromDb()
-  console.log(88877, Date.now())
   ctx.body = { searchResultList: searchResult }
   await next()
 })
