@@ -1,0 +1,23 @@
+const fs = require('fs-extra')
+const path = require('path')
+const { dateFormat } = require(path.resolve(
+  __dirname,
+  '../../src/util/tool.js'
+))
+exports.ErrorLog = class {
+  constructor() {
+    this.logDb = []
+  }
+  push(error, keywords, description) {
+    this.logDb.push({ error, keywords, description })
+    return this
+  }
+  end() {
+    let log = {}
+    const createTime = dateFormat(new Date.now())
+    log.createTime = createTime
+    log.errors = this.logDb
+    log = JSON.stringify(log)
+    fs.writeFile(path.resolve(__dirname, './error.log'), log)
+  }
+}

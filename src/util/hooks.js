@@ -60,7 +60,7 @@ export function useScroll(distance) {
     )
     if (scrollDis >= distance) {
       setScrollToDistance(true)
-    } else if (scrollDis < distance - 10) {
+    } else if (scrollDis < distance) {
       setScrollToDistance(false)
     }
   }, [distance]) // eslint-disable-line

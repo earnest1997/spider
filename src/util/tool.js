@@ -118,6 +118,16 @@ function createChainedFunction() {
   };
 }
 
+function dateFormat(time,format){
+  const date=new Date(time)
+  return format.replace(/yyyy/gi,date.getFullYear())
+  .replace(/MM/gi,(date.getFullMonth()+1).padStart(2,'0'))
+  .replace(/dd/gi,(date.getDate()).padStart(2,'0'))
+  .replace(/hh/gi,date.getHours().padStart(2,'0'))
+  .replace(/mm/gi,date.getMinutes().padStart(2,'0'))
+  .replace(/ss/gi,date.getSeconds().padStart(2,'0'))
+}
+
 module.exports={
   flatten,
   genID,
@@ -128,5 +138,6 @@ module.exports={
   compose,
   mergeDeep,
   omit,
-  createChainedFunction
+  createChainedFunction,
+  dateFormat
 }

@@ -36,13 +36,15 @@ const Header = ({ history }) => {
     })
   }, [])
   useEffect(() => {
+    console.log(window.getComputedStyle(headerRef.current).height,9000)
     // initAnimation(headerRef.current)
   }, [initAnimation])
-  const isSwitchHeader = useScroll(280)
+
+  const isSwitchHeader = useScroll(333.5)
   const classNames = !isSwitchHeader
     ? 'header header-pc'
     : 'header header-mobile'
-  const placeholder = <div style={{ height: 300, width: '100vw' }}></div>
+  const placeholder = <div style={{ height: 400, width: '100vw' }}></div>
   return (
     <>
       {isSwitchHeader && placeholder}

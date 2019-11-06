@@ -6,7 +6,7 @@ const path = require('path')
 const shelljs = require('shelljs')
 const cheerio = require('cheerio')
 const puppeteer = require('puppeteer')
-const db = require(path.resolve(__dirname, './db.js'))
+const db = require(path.resolve(__dirname, './db/index.js'))
 // 配置
 const { searchMap } = require(path.resolve(
   __dirname,
@@ -25,6 +25,8 @@ const {
   compose,
   omit
 } = require(path.resolve(__dirname, '../src/util/tool.js'))
+// 错误记录
+const {ErrorLog}=require(path.resolve(__dirname,'./log/index.js'))
 
 const srcHtml = path.resolve(__dirname, '../src/index.tpl.html')
 // @classType(type.Ispider)
@@ -45,6 +47,7 @@ class Spider {
   }
   start() {
     this[`${this.operation}Article`](this.options)
+    this.ErrorLog=new ErrorLog
     // fs.truncateSync(path.resolve(__dirname,'./db.json'),0,function(){console.log('unset db')})
     // this.searchArticle( { keywords: 'node' })
   }
@@ -77,11 +80,11 @@ class Spider {
       } = v
       await page.goto(baseUrl)
       await page.type(searchInput, keywords, { delay: 100 }).catch((err) => {
-        console.log(err, '2')
+        this.ErrorLog.push(err,{searchInput},'搜索关键字失败')
       })
 
       await page.click(searchBtn).catch((err) => {
-        console.log(err, '3')
+        this.ErrorLog.push(err,{searchBtn},'点击搜索按钮失败')
       })
       if (isNewTab) {
         await new Promise((resolve) => page.once('popup', resolve))
@@ -89,7 +92,7 @@ class Spider {
         await page.goto(pages.slice(-1)[0].url())
       }
       await page.waitForSelector(baseSelector).catch((err) => {
-        console.log(err, '4')
+        this.ErrorLog.push(err,{baseSelector},'等待搜索列表父级元素失败')
       })
       const _html = await page.content()
       const urlsWithKey = this.formatParam(
@@ -127,9 +130,12 @@ class Spider {
           return cssLink + $1
         })
       fs.writeFile(srcHtml, htmlContent, 'utf-8')
-      page.goto(baseUrl)
+      await page.goto(baseUrl).catch(err=>{
+        this.ErrorLog.push(err,{baseUrl},'跳转热门页面失败')
+      })
       await page.waitForSelector(baseSelector).catch((err) => {
-        console.log(err, `hot baseselector timeout`)
+        console.log(err,'fetch hot')
+        this.ErrorLog.push(err,{baseSelector},'等待热门页面父级元素失败')
       })
       const _html = await page.content()
       const urlsWithKey = this.formatParam(
@@ -274,16 +280,17 @@ class Spider {
       } = baseConfigMap.get(k)
       const page = await browser.newPage()
       await page.goto(url).catch((err) => {
-        console.log(err, '页面跳转失败')
+        console.log(err,url, '页面跳转失败')
+        this.ErrorLog.push(err,{url},'文章详情页面跳转失败')
       })
       const { baseSelector: detailBaseSelector } = detailConfig
       await page
         .waitForSelector(detailBaseSelector, { visible: true })
         .catch((err) => {
-          console.log(err, 'fetch1 err')
+          this.ErrorLog.push(err,{detailBaseSelector},'等待详情页面父级元素失败')
         })
       const content = await page.content().catch((err) => {
-        console.log(err, 'fetch2 err')
+        this.ErrorLog.push(err,{},'获取详情页面内容失败')
       })
       const $ = cheerio.load(content, {
         decodeEntities: false

@@ -23,21 +23,12 @@
       word-break: break-all;
     }
   }
-  // pre.code {
-  //   white-space: pre-wrap;
-  // }
-  // pre.code:before {
-  //   counter-reset: listing;
-  // }
-  // pre.code code {
-  //   counter-increment: listing;
-  // }
-  // pre code::before {
-  //   content: counter(listing) ". "!important;
-  //   display: inline-block!important;
-  //   width: 8em!important;
-  //   padding-left: auto;
-  //   margin-left: auto;
-  //   text-align: right;
+  // &,div {
+  //   width: unset!important;
+  //   height: unset !important;
+  //   border-top: unset!important;
+  //   border-left: unset!important;
+  //   border-right: unset!important;
+  //   border-bottom:unset!important;
   // }
 }
