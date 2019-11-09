@@ -1,19 +1,21 @@
-import React, { useContext, useEffect, useCallback, useRef } from 'react'
+import React, {  useEffect, useCallback, useRef } from 'react'
 import { Hover } from 'perspective.js'
-import { context } from '@/client/store'
 import { withRouter } from 'react-router-dom'
 import { Input } from '../Input'
-import { useScroll } from '@/util'
+import { useScroll } from 'util'
+import {Message} from '@/components'
 import './index.scss'
 
 const Header = ({ history }) => {
-  const { getSearchList } = useContext(context)
   const headerRef = useRef()
   const handleEnter = useCallback(
-    (e, getSearchList) => {
+    (e) => {
       if (e.nativeEvent.keyCode === 13) {
-        getSearchList(e.target.value)
-        history.push(`/search?q=${e.target.value}`)
+        if(!e.target.value){
+          Message.warning('请输入关键字')
+          return
+        }
+        history.push({pathname:`/search?q=${e.target.value}`,state:{keywords:e.target.value}})
       }
     },
     [history]
@@ -50,9 +52,8 @@ const Header = ({ history }) => {
       {isSwitchHeader && placeholder}
       <div className={classNames} ref={headerRef}>
         <div className='row row-01' data-hover-layer='0'>
-          <i className='icon ion-md-search'></i>
-
-          <Input onKeyUp={(e) => handleEnter(e, getSearchList)} />
+          <i className='icon ion-md-search'/>
+          <Input onKeyUp={(e) => handleEnter(e)} />
         </div>
         <h2 className='row row-02' data-hover-layer='1'>
           FE News

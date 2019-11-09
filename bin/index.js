@@ -7,7 +7,6 @@ const shelljs = require('shelljs')
 const cheerio = require('cheerio')
 const puppeteer = require('puppeteer')
 const db = require(path.resolve(__dirname, './db/index.js'))
-const cluster = require('cluster')
 // 配置
 const { searchMap } = require(path.resolve(
   __dirname,
@@ -24,8 +23,8 @@ const {
   genID,
   filterObjWithInvalidVal,
   compose,
-  omit,
-} = require(path.resolve(__dirname, '../src/util/tool.js'))
+  omit
+} = require(path.resolve(__dirname, './util/index.js'))
 // 错误记录
 const { ErrorLog } = require(path.resolve(__dirname, './log/index.js'))
 
@@ -77,7 +76,7 @@ class Spider {
         baseSelector,
         maxLength,
         data,
-        isNewTab,
+        isNewTab
       } = v
       await page.goto(baseUrl)
       await page.type(searchInput, keywords, { delay: 100 }).catch((err) => {
@@ -135,7 +134,6 @@ class Spider {
         this.ErrorLog.push(err, { baseUrl }, '跳转热门页面失败')
       })
       await page.waitForSelector(baseSelector).catch((err) => {
-        console.log(err, 'fetch hot')
         this.ErrorLog.push(err, { baseSelector }, '等待热门页面父级元素失败')
       })
       const _html = await page.content()
@@ -170,7 +168,7 @@ class Spider {
 
   formatParam(_html, baseSelector, maxLength, data, baseUrl, k, listName) {
     const $ = cheerio.load(_html, {
-      decodeEntities: false,
+      decodeEntities: false
     })
     const rootElement = $(baseSelector)
     const articleLength = rootElement.children().length
@@ -203,7 +201,7 @@ class Spider {
       const _data = omit(['baseClassName', 'baseSelectorToGetClassName'], data)
       const {
         baseClassName = 'empty',
-        baseSelectorToGetClassName = 'empty',
+        baseSelectorToGetClassName = 'empty'
       } = data
       for (let k in _data) {
         const { selector, baseUrl: _baseUrl = '' } = _data[k]
@@ -231,7 +229,7 @@ class Spider {
         title: content.title,
         time: content.time,
         baseClassName,
-        baseSelectorToGetClassName,
+        baseSelectorToGetClassName
       }
     })
     const validResList = filterObjWithInvalidVal(resList)
@@ -239,21 +237,24 @@ class Spider {
     return validResList
   }
   /**
-   * 设置code标签的index属性
+   * 设置code标签的classname
    * @param {string} content
    */
-  setCodeIndex(content) {
-    const reg01 = /(<code([\s\S])*?)(?=>)/g
+  setCodeClass(content) {
+    const reg01 = /(<code(\s+)class=('|")[\s\S]+?)(?=('|"))/g
     const reg02 = /<[\s\S]*?>复制代码<\/\w+>/g
     if (content.match(reg01) && content.match(reg02)) {
       let index = 0
-      content.replace(reg01, ($1) => {
-        return $1 + 'data-index=' + index++
+      content=content.replace(reg01, ($1) => {
+        const classname=` code-0${index++}`
+        return $1+classname
       })
-      content.replace(reg02, ($1) => {
-        return $1 + 'data-index=' + index++
+      content=content.replace(reg02, ($1) => {
+        const classname=` copy-0${index++}`
+        return $1+classname
       })
     }
+    return content
   }
   /**
    * 获取文章详情
@@ -273,15 +274,14 @@ class Spider {
         author,
         title,
         baseClassName,
-        baseSelectorToGetClassName,
+        baseSelectorToGetClassName
       } = item
       const detail = { source: sourceMap[k], id, author, title }
       const {
-        data: { detail: detailConfig },
+        data: { detail: detailConfig }
       } = baseConfigMap.get(k)
       const page = await browser.newPage()
       await page.goto(url).catch((err) => {
-        console.log(err, url, '页面跳转失败')
         this.ErrorLog.push(err, { url }, '文章详情页面跳转失败')
       })
       const { baseSelector: detailBaseSelector } = detailConfig
@@ -298,7 +298,7 @@ class Spider {
         this.ErrorLog.push(err, {}, '获取详情页面内容失败')
       })
       const $ = cheerio.load(content, {
-        decodeEntities: false,
+        decodeEntities: false
       })
       const rootElement = $(detailBaseSelector)
       const _baseClassName =
@@ -316,45 +316,46 @@ class Spider {
       }
       const { content: _content } = detail
       const abstract = `${_content.substring(0, abstractLength)}...`
-      const detailWithCopyCode = this.setCodeIndex(_content)
       db.set(`${listName}[${index}].detail`, abstract).write()
+      const detailContent=this.setCodeClass(_content)
       db.get(detailListName)
         .push({
-          content: detailWithCopyCode,
+          content:detailContent,
           id,
           author,
           title,
-          baseClassName: _baseClassName,
+          baseClassName: _baseClassName
         })
         .write()
     }
     this.endExec()
   }
-
+  // 执行脚本完毕
   endExec() {
     this.ErrorLog.end()
-    if (cluster.isMaster) {
-      return
-    } else {
+    if (process.send) {
       process.send('end')
     }
+    process.exit(0)
   }
 }
 
 // node './bin/index.js' s @keywords _node
 // 根据命令行参数执行对应的命令
-const operationMap = {
-  s: 'search',
-  h: 'fetchHot',
-}
-let argArr = [...process.argv]
-const operation = operationMap[argArr[2]]
-const optionsKeyArr = argArr.filter((item) => item.startsWith('@'))
-const optionsValArr = argArr.filter((item) => item.startsWith('_'))
-let options = {}
-for (let [k, v] of Object.entries(optionsKeyArr)) {
-  const key = v.replace('@', '')
-  options[key] = optionsValArr[k].replace('_', '')
-}
-const spider = new Spider(operation, options)
-spider.start()
+(function getArgStart() {
+  const operationMap = {
+    s: 'search',
+    h: 'fetchHot'
+  }
+  let argArr = [...process.argv]
+  const operation = operationMap[argArr[2]]
+  const optionsKeyArr = argArr.filter((item) => item.startsWith('@'))
+  const optionsValArr = argArr.filter((item) => item.startsWith('_'))
+  let options = {}
+  for (let [k, v] of Object.entries(optionsKeyArr)) {
+    const key = v.replace('@', '')
+    options[key] = optionsValArr[k].replace('_', '')
+  }
+  const spider = new Spider(operation, options)
+  spider.start()
+})()

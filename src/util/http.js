@@ -7,7 +7,7 @@ const headers = {
 }
 const _axios = axios.create({
   baseURL: 'http://0.0.0.0:3000',
-  timeout: 4000,
+  timeout: 28000,
   headers
 })
 _axios.interceptors.request.use(

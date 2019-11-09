@@ -1,5 +1,5 @@
 const { jianshuBaseConfig, juejinBaseConfig } = require('./baseConfig')
-const {mergeDeep} =require('../../src/util/tool.js')
+const {mergeDeep} =require('../util/index.js')
 
 const juejinHotConfig = {
   baseUrl: 'https://juejin.im/welcome/frontend?sort=weekly_hottest',

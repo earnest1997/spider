@@ -2,10 +2,10 @@ import {
   getSearchResultListApi,
   getHotArticleListApi,
   getArticleDetailApi,
-} from '@/client/service'
+} from '@/service'
 import React, { useEffect, useReducer, createContext } from 'react'
 
-export const context = createContext({})
+export const context = createContext()
 const reducers = (state, action) => {
   const {
     type,
@@ -26,8 +26,8 @@ const reducers = (state, action) => {
 }
 // 搜索文章列表
 const getSearchListSaga = (dispatch) => async (keywords) => {
-  const getSearchResultList = await getSearchResultListApi(keywords)
-  dispatch({ type: 'setgetSearchResultList', getSearchResultList })
+  const {data:searchResultList} = await getSearchResultListApi(keywords)
+  dispatch({ type: 'setSearchResultList',searchResultList})
 }
 // 获取文章详情
 
@@ -43,7 +43,7 @@ const getSearchListSaga = (dispatch) => async (keywords) => {
 // }
 // 获取文章详情
 const getArticleDetailSaga = (dispatch) => async (id,type) => {
-  const articleDetail = await getArticleDetailApi(id,type)
+  const {data:articleDetail }= await getArticleDetailApi(id,type)
   dispatch({ type: 'setArticleDetail', articleDetail })
 }
 
@@ -56,8 +56,8 @@ function combineSagas() {
   const [state, dispatch] = useReducer(reducers, initialState)
   useEffect(() => {
     getHotArticleListApi()
-      .then((data) => {
-        const { hotArticleList } = data
+      .then((res) => {
+        const hotArticleList = res.data
         dispatch({ type: 'setHotArticleList', hotArticleList })
       })
       .catch((err) => {

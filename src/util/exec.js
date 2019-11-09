@@ -1,4 +1,4 @@
-import { Message } from '@/client/components'
+import { Message } from '@/components'
 
 export function copy(text) {
   if ('execCommand' in document) {

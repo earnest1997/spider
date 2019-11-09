@@ -2,7 +2,7 @@
  * 扁平化数组
  * @param {*} arg 
  */
-function flatten(arg){
+export function flatten(arg){
   return arg.reduce((prev,next)=>{
     return prev.concat(Array.isArray(next) && flatten(next) || next)
   },[])
@@ -11,14 +11,14 @@ function flatten(arg){
  * 生成唯一ID
  * @param {*} length 
  */
-function genID (length = 5) {
+export function genID (length = 5) {
   return Number(Math.random().toString().substr(3,length) + Date.now()).toString(36);
   }
 /**
  * 生成可以获得index的可枚举对象
  * @param {*} obj 
  */
-function* enumerate(obj) {
+export function* enumerate(obj) {
     let index = 0
     for (let k in obj) {
       yield [index, k]
@@ -29,7 +29,7 @@ function* enumerate(obj) {
  * 过滤html标签
  * @param {*} html 
  */
-function filterHtmlTag(html){
+export function filterHtmlTag(html){
   const reg=/(\<\/?[a-z]+[^\>]*\>|\\n|\s)/g
   return html.match(reg)&&html.replace(reg,'') || html
 }
@@ -37,7 +37,7 @@ function filterHtmlTag(html){
  * 过滤类名
  * @param {*} html 
  */
-function filterClass(html){
+export function filterClass(html){
   const reg=/class=\\"[\w-]+\\"/g
   return html.match(reg)&&html.replace(reg,'') || html
 }
@@ -45,7 +45,7 @@ function filterClass(html){
  * 过滤含有无效值的对象
  * @param {*} objArr 
  */
-function filterObjWithInvalidVal(objArr){
+export function filterObjWithInvalidVal(objArr){
   return objArr.filter(obj=>Object.values(obj).every(val=>!!val))
   // return objArr
 }
@@ -53,7 +53,7 @@ function filterObjWithInvalidVal(objArr){
  * 合并多个函数
  * @param  {...any} f 
  */
-function compose(...f){
+export function compose(...f){
   if(f.length===1){
     return f()
   }else{
@@ -65,7 +65,7 @@ function compose(...f){
  * @param item
  * @returns {boolean}
  */
-function isObject(item) {
+export function isObject(item) {
   return (item && typeof item === 'object' && !Array.isArray(item));
 }
 
@@ -74,7 +74,7 @@ function isObject(item) {
  * @param target
  * @param ...sources
  */
-function mergeDeep(target, ...sources) {
+export function mergeDeep(target, ...sources) {
   if (!sources.length) return target;
   const source = sources.shift();
 
@@ -95,7 +95,7 @@ function mergeDeep(target, ...sources) {
  * @param {Array} property 
  * @param {object} obj 
  */
-function omit(property,obj){
+export function omit(property,obj){
   const _obj={...obj}
 for(let k in _obj){
   if(property.includes(k)){
@@ -107,7 +107,7 @@ return _obj
 /**
  * 调用多个函数
  */
-function createChainedFunction() {
+export function createChainedFunction() {
   var args = arguments;
   return function chainedFunction() {
     for (var i = 0; i < args.length; i++) {
@@ -122,7 +122,7 @@ function fixZero(date){
   return (date+'').padStart(2,'0')
 }
 
-function dateFormat(time,format){
+export function dateFormat(time,format){
   const date=new Date(time)
   return format.replace(/yyyy/gi,date.getFullYear())
   .replace(/MM/gi,fixZero(date.getMonth()+1))
@@ -132,16 +132,28 @@ function dateFormat(time,format){
   .replace(/ss/gi,fixZero(date.getSeconds()))
 }
 
-module.exports={
-  flatten,
-  genID,
-  enumerate,
-  filterHtmlTag,
-  filterClass,
-  filterObjWithInvalidVal,
-  compose,
-  mergeDeep,
-  omit,
-  createChainedFunction,
-  dateFormat
+export function isEmptyData(obj){
+  if(Array.isArray(obj) && !obj.length){
+    return true
+  } else if(Object.values(obj).every(val=>!val)){
+    return true
+  }
+  return false
 }
+
+
+
+// exports = {
+//   flatten,
+//   genID,
+//   enumerate,
+//   filterHtmlTag,
+//   filterClass,
+//   filterObjWithInvalidVal,
+//   compose,
+//   mergeDeep,
+//   omit,
+//   createChainedFunction,
+//   dateFormat,
+//   isEmptyData
+// }

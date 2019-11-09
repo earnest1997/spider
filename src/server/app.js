@@ -3,63 +3,64 @@ const path = require('path')
 const db = require(path.resolve(__dirname, '../../bin/db/index.js'))
 const app = new koa()
 const router = require('koa-router')()
-const process = require('child_process')
+const {fork} = require('child_process')
 // const util=require('util')
 const schedule = require('node-schedule')
-const { searchConfig } = require(path.resolve(
-  __dirname,
-  '../../bin/config/searchConfig.js'
-))
 
 /**
  * 获取热门文章列表
  */
 router.get('/getHotArticleList', async (ctx, next) => {
-  ctx.body = { hotArticleList: db.get('hotResList') }
+  const _data= db.get('hotResList') || {noData:true}
+  ctx.body = { data:_data}
   await next()
 })
 // Todo 当脚本文件执行时间过长的时候 回调函数不会执行
 // 轮询 获取从数据库获得数据 当长度大于指定的长度时返回结果
-function getSearchResultFromDb() {
-  let pollCount = 0
-  const pollInterval = 2000
-  const supposedMinSearchCount = searchConfig.minLength
-  const supposedMaxSearchCount = searchConfig.maxLength
-  return new Promise((resolve, reject) => {
-    const timer = setInterval(() => {
-      const data = db.get('searchResList').value()
-      if (pollCount < 10) {
-        console.log(pollCount, db.get('searchResList').value())
-        if (data.length >= supposedMaxSearchCount) {
-          console.log(data)
-          resolve(data)
-          clearInterval(timer)
-        } else {
-          pollCount++
-        }
-      } else {
-        if (data.length < supposedMinSearchCount) {
-          console.log('查找数据库超时')
-          clearInterval(timer)
-          reject()
-        } else {
-          resolve()
-        }
-      }
-    }, pollInterval)
-  })
-}
+// function getSearchResultFromDb() {
+//   let pollCount = 0
+//   const pollInterval = 2000
+//   const supposedMinSearchCount = searchConfig.minLength
+//   const supposedMaxSearchCount = searchConfig.maxLength
+//   return new Promise((resolve, reject) => {
+//     const timer = setInterval(() => {
+//       const data = db.get('searchResList').value()
+//       if (pollCount < 10) {
+//         console.log(pollCount, db.get('searchResList').value())
+//         if (data.length >= supposedMaxSearchCount) {
+//           console.log(data)
+//           resolve(data)
+//           clearInterval(timer)
+//         } else {
+//           pollCount++
+//         }
+//       } else {
+//         if (data.length < supposedMinSearchCount) {
+//           console.log('查找数据库超时')
+//           clearInterval(timer)
+//           reject()
+//         } else {
+//           resolve()
+//         }
+//       }
+//     }, pollInterval)
+//   })
+// }
 /**
  * 获取搜索文章结果列表
  */
 router.get('/getSearchResultList', async (ctx, next) => {
   const { keywords } = ctx.query
-  const child=process.exec(`node './bin/index.js' s @keywords _${keywords}`)
-  child.on('message',m=>{
+  const child=fork('./bin/index.js',['s','@keywords',`_${keywords}`])
+  const data=await new Promise ((resolve)=>{
+    child.on('message',async m=>{
     console.log(m,'收到')
+    const searchResult=db.get('searchResList').value()
+    resolve(searchResult)
   })
-  const searchResult = await getSearchResultFromDb()
-  ctx.body = { searchResultList: searchResult }
+})
+const _data=data || {noData:true}
+ctx.body = { data:_data}
   await next()
 })
 /**
@@ -79,7 +80,8 @@ router.get('/getArticleDetail', async (ctx, next) => {
       .find({ id })
       .value()
   }
-  ctx.body = detail
+  const _data=detail || {noData:true}
+  ctx.body = {data:_data}
   await next()
 })
 

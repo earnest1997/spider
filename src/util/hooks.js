@@ -24,6 +24,9 @@ export function useLazyLoad(baseClassName) {
     }
   }
   useEffect(() => {
+    if(!baseClassName){
+      return
+    }
     const rootDom = document.getElementsByClassName(baseClassName)[0]
     if (!rootDom) {
       return
@@ -92,4 +95,16 @@ export function useCopy(selector = 'copy-code-btn') {
       btn.removeEventListener('click', clickHanlder)
     }
   }, [selector])
+}
+
+export function useRequest(req, ...arg) {
+  const [data, setData] = useState()
+  useEffect(() => {
+    req(...arg).then((res) => {
+      if (res && res.data) {
+        setData(res.data)
+      }
+    })
+  }, []) // eslint-disable-line
+  return [data,setData]
 }

@@ -1,6 +1,6 @@
 import React,{useContext} from 'react'
-import { ListItem } from '@/client/components'
-import {context} from '@/client/store'
+import { ListItem } from '@/components'
+import {context} from '@/store'
 // import {functionType} from '../../util/ts'
 import './index.scss'
 

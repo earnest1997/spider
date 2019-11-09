@@ -35,8 +35,7 @@ module.exports = {
     alias: {
       'util': resolve('src/util/'),
       'server':resolve('src/server/'),
-      'store': resolve('src/client/store'),
-      '@':resolve('src')
+      '@':resolve('src/client')
     }
   },
   module: {

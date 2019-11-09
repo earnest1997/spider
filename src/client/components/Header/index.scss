@@ -1,4 +1,4 @@
-@import '@/client/style/index.scss';
+@import '@/style/index.scss';
 
 .header {
   input {
@@ -20,7 +20,7 @@
     i {
       position: absolute;
       left: r(10);
-      font-size: r(35);
+      font-size: 20px;
       z-index: 1;
       opacity: 0.7;
       color: palette('content', 'dark');

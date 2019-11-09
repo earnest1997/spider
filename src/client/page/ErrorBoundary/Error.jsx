@@ -1,5 +1,5 @@
 import React from 'react'
-import {errorMap} from '@/client/constants'
+import {errorMap} from '@/constants'
 
 export const Error=({errCode})=>(
   <div className='error'>

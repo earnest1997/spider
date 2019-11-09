@@ -1,15 +1,9 @@
 import React, { useContext } from 'react'
-import { context } from '@/client/store'
-import { ListItem } from '@/client/components'
+import { context } from '@/store'
+import { ListItem } from '@/components'
+import {useRequest,WithLoadingHoc} from 'util'
 
-export const Search = () => {
-  const { searchResultList } = useContext(context)
-  return searchResultList.length ? (
-    <SearchList list={searchResultList} />
-  ) : (
-    <Empty />
-  )
-}
+
 
 function SearchList({ list }) {
   return (
@@ -22,10 +16,10 @@ function SearchList({ list }) {
   )
 }
 
-function Empty() {
-  return (
-    <div className='search'>
-      <h1>没有结果</h1>
-    </div>
-  )
+
+export const Search = (props) => {
+  const {location:{state:{keywords}}}=props
+  const {getSearchList } = useContext(context)
+  const [searchResultList]=useRequest(getSearchList,keywords)
+  return WithLoadingHoc(SearchList,searchResultList)
 }

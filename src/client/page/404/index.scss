@@ -1,0 +1,26 @@
+@import '@/style';
+
+.notfound{
+  background: #fff;
+  width: 100vw;
+  height: 100vh;
+  @include flex;
+  img{
+    margin-right: 5vw;
+  }
+  .col-02{
+    @include flex(center,center,column);
+  }
+  h1{
+font-size: 10rem;
+margin-bottom: 1rem;
+  }
+  h2{
+    font-size: 2.3rem;
+    margin-bottom: 1rem;
+  }
+  h4{
+    color: palette('primary');
+    font-size: 1.2rem;
+  }
+}

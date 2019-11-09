@@ -1,4 +1,4 @@
-@import '@/styles';
+@import '@/style';
 
 $prefixCls: 'component-loading' !default;
 
@@ -7,7 +7,6 @@ $prefixCls: 'component-loading' !default;
   color: palette('primary');
   &-mask {
     @include transition;
-    @include component-reset;
     @include flex;
     z-index: 19;
     &-enter {

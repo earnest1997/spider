@@ -2,7 +2,7 @@ const fs = require('fs-extra')
 const path = require('path')
 const { dateFormat } = require(path.resolve(
   __dirname,
-  '../../src/util/tool.js'
+  '../util/index.js'
 ))
 exports.ErrorLog = class {
   constructor() {
@@ -18,6 +18,6 @@ exports.ErrorLog = class {
     log.createTime = createTime
     log.errors = this.logDb
     log = JSON.stringify(log)
-    fs.writeFile(path.resolve(__dirname, './error.log'), log)
+    fs.writeFile(path.resolve(__dirname, './error.json'), log)
   }
 }

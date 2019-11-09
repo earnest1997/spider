@@ -1,10 +1,10 @@
 import React from 'react'
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'
-import { ContextProvider } from '@/client/store'
-import * as page from '@/client/page'
-import { Header } from '@/client/components'
-import { ErrorBoundary } from '@/client/page'
-import '@/client/style/index.scss'
+import { BrowserRouter as Router, Route, Switch,Redirect } from 'react-router-dom'
+import { ContextProvider } from '@/store'
+import * as page from '@/page'
+import { Header } from '@/components'
+import { ErrorBoundary } from '@/page'
+import '@/style/index.scss'
 
 export const App = () => {
 
@@ -12,13 +12,18 @@ export const App = () => {
     <ErrorBoundary>
       <ContextProvider>
         <Router>
+          <Switch>
+          <Route path='/404' component={page.NotFound} />
+          <React.Fragment>
           <Header />
           <Switch>
             <Route exact strict path='/' component={page.Home}/>
             <Route exact strict path='/search/article/:id' component={page.Article} />
             <Route path='/hot/article/:id' component={page.Article} />
             <Route path='/search' component={page.Search}/>
-            <Route path='*' component={page.NotFound}/>
+            <Route path='*' render={()=><Redirect to='/404'/>}/>
+          </Switch>
+          </React.Fragment>
           </Switch>
         </Router>
       </ContextProvider>
