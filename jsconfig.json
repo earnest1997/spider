@@ -9,6 +9,6 @@
       "server/*":["src/config/*"]
     }
   },
-  "include": ["./src/**/*", "src/util/tool.js"],
+  "include": ["./src/**/*", "src/util/helper.js"],
   "exclude": ["node_modules"]
 }

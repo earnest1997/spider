@@ -121,7 +121,11 @@ export function createChainedFunction() {
 function fixZero(date){
   return (date+'').padStart(2,'0')
 }
-
+/**
+ * 格式化日期
+ * @param {string} time 
+ * @param {string} format 
+ */
 export function dateFormat(time,format){
   const date=new Date(time)
   return format.replace(/yyyy/gi,date.getFullYear())
@@ -131,7 +135,10 @@ export function dateFormat(time,format){
   .replace(/mm/gi,fixZero(date.getMinutes()))
   .replace(/ss/gi,fixZero(date.getSeconds()))
 }
-
+/**
+ * 判断是否爬到数据
+ * @param {object} obj 
+ */
 export function isEmptyData(obj){
   if(Array.isArray(obj) && !obj.length){
     return true
@@ -139,6 +146,19 @@ export function isEmptyData(obj){
     return true
   }
   return false
+}
+/**
+ * 引入多个文件
+ * @param {function} r 
+ */
+export function importAll(r) {
+  let cache = {}
+  r.keys()
+    .filter((item) => item !== './index.js')
+    .forEach((key) => {
+      cache[key] = r(key)
+    })
+  return cache
 }
 
 

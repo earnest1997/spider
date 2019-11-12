@@ -19,7 +19,7 @@ export const Loading = forwardRef(
       setPrivateVisible(visible)
     }, [visible])
     useImperativeHandle(ref, () => ({
-      hide: () => setPrivateVisible(false)
+      hide: () => {setPrivateVisible(false)}
     }))
     const maskCls = classNames(
       `${prefixCls}-mask`,

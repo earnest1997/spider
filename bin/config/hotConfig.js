@@ -3,7 +3,7 @@ const {mergeDeep} =require('../util/index.js')
 
 const juejinHotConfig = {
   baseUrl: 'https://juejin.im/welcome/frontend?sort=weekly_hottest',
-  maxLength: 12,
+  maxLength: 5,
   baseSelector: '.entry-list',
   excludeChildSelector: '.ad-entry-list',
   data: {

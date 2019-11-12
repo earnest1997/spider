@@ -1,5 +1,6 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState,useRef, useCallback } from 'react'
 import { findDOMNode } from 'react-dom'
+import {Loading} from '@/components'
 import { throttle } from './optimization'
 import { copy } from './exec'
 
@@ -97,13 +98,17 @@ export function useCopy(selector = 'copy-code-btn') {
   }, [selector])
 }
 
-export function useRequest(req, ...arg) {
+export function useRequest(req,isLoading, ...arg) {
   const [data, setData] = useState()
+  const loadingRef =useRef()
   useEffect(() => {
+    if(isLoading) loadingRef.current = Loading.show()
     req(...arg).then((res) => {
       if (res && res.data) {
         setData(res.data)
       }
+    }).finally(()=>{
+      if(isLoading) loadingRef.current.hide()
     })
   }, []) // eslint-disable-line
   return [data,setData]

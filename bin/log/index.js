@@ -17,7 +17,6 @@ exports.ErrorLog = class {
     const createTime = dateFormat(Date.now(),'yyyy-MM-dd:hh:mm:ss')
     log.createTime = createTime
     log.errors = this.logDb
-    log = JSON.stringify(log)
-    fs.writeFile(path.resolve(__dirname, './error.json'), log)
+    fs.writeJsonSync(path.resolve(__dirname, './error.json'), log)
   }
 }

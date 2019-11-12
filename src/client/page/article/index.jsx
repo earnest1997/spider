@@ -1,21 +1,36 @@
-import React, {  useRef, useContext,useCallback,useEffect } from 'react'
+import React, {  useContext, useCallback, useEffect } from 'react'
+import { unmountComponentAtNode } from 'react-dom'
 import { withRouter } from 'react-router-dom'
 import { context } from '@/store'
-import {classNames,useLazyLoad,useRequest,enumerate,copy} from 'util'
-import {isEmptyData} from 'util'
-import { Loading,Empty } from '@/components'
+import {
+  classNames,
+  useLazyLoad,
+  useRequest,
+  copy as copyExec
+} from 'util'
+import { isEmptyData } from 'util'
+import { Loading, Empty } from '@/components'
 import './index.scss'
 
-function useCopyCode(){
-  const copyBtnList=document.querySelectorAll("[class^=copy-0]")
-  const codeList=document.querySelectorAll("[class^=code-0]")
-  const copyHandler=useCallback((index)=>{
-  const code=codeList[index].textContent
-  copy(code)
-  },[codeList])
-  for(let [index,btn] in enumerate(copyBtnList)){
-    btn.addEventListener("click",copyHandler.bind(null,index))
-  }
+function useCopyCode(articleDetail) {
+  const copy = useCallback((index, codeList) => {
+    const code = codeList[index].textContent
+    copyExec(code)
+  }, [])
+  useEffect(() => {
+    const copyBtnList = document.querySelectorAll('[class*=copy-0]')
+    const codeList = document.querySelectorAll('[class*=code-0]')
+    if (!isEmptyData(articleDetail) && !articleDetail.noData) {
+      for (let [index, btn] of Object.entries(Array.from(copyBtnList))) {
+        const copyHandler = copy.bind(null, index,codeList)
+        btn.addEventListener('click', copyHandler)
+      }
+      return () => {
+        const container = document.getElementsByClassName('wrapper')[0]
+        unmountComponentAtNode(container)
+      }
+    }
+  }, [articleDetail, copy])
 }
 
 const Article = (props) => {
@@ -25,33 +40,31 @@ const Article = (props) => {
       path
     }
   } = props
-  const type=path.split('/')[1]
+  const type = path.split('/')[1]
   const { getArticleDetail, articleDetail } = useContext(context)
-  const { title, content, author,baseClassName } = articleDetail 
-  useRequest(getArticleDetail,id,type)
+  const { title, content, author, baseClassName } = articleDetail
+  useRequest(getArticleDetail,true, id, type)
+  useCopyCode(articleDetail)
   // useLazyLoad(baseClassName)
-  const loadingRef=useRef()
- if (isEmptyData(articleDetail)){
-    loadingRef.current=Loading.show()
-    return <Loading/>
+  if (isEmptyData(articleDetail)) {
+    return <Loading />
+  } else if (articleDetail.noData) {
+    return <Empty />
   }
-  else if(articleDetail.noData){
-    loadingRef.current && loadingRef.current.hide()
-    return <Empty/>
-  } 
-  loadingRef.current.hide()
   return (
     <div className='wrapper article'>
-    <main>
-      <div className='row row-01'>{title}</div>
-      <div className='row row-02'>
-        <span>作者:&nbsp;{author}</span>
-      </div>
-      <div className={classNames('row row-03',baseClassName)} dangerouslySetInnerHTML={{__html:content}}/>
+      <main>
+        <div className='row row-01'>{title}</div>
+        <div className='row row-02'>
+          <span>作者:&nbsp;{author}</span>
+        </div>
+        <div
+          className={classNames('row row-03', baseClassName)}
+          dangerouslySetInnerHTML={{ __html: content }}
+        />
       </main>
     </div>
   )
 }
-
 
 export default withRouter(Article)

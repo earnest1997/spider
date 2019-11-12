@@ -1,14 +1,15 @@
 import axios from 'axios'
 
-const headers = {
-  Referer: 'https://juejin.im/post/5db66672f265da4d0e009aad',
-  'User-Agent':
-    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.70 Safari/537.36'
-}
+// 反爬虫机制 无效
+// const headers = {
+//   Referer: 'https://juejin.im/post/5db66672f265da4d0e009aad',
+//   'User-Agent':
+//     'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.70 Safari/537.36'
+// }
 const _axios = axios.create({
   baseURL: 'http://0.0.0.0:3000',
   timeout: 28000,
-  headers
+  // headers
 })
 _axios.interceptors.request.use(
   (config) => {

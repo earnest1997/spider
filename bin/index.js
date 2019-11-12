@@ -6,6 +6,9 @@ const path = require('path')
 const shelljs = require('shelljs')
 const cheerio = require('cheerio')
 const puppeteer = require('puppeteer')
+const axios = require('axios')
+const async = require('async')
+const {Readable} = require('stream')
 const db = require(path.resolve(__dirname, './db/index.js'))
 // 配置
 const { searchMap } = require(path.resolve(
@@ -242,19 +245,43 @@ class Spider {
    */
   setCodeClass(content) {
     const reg01 = /(<code(\s+)class=('|")[\s\S]+?)(?=('|"))/g
-    const reg02 = /<[\s\S]*?>复制代码<\/\w+>/g
+    const reg02 = /(<[^\/]*?class=('|"))[\s\S]+?"[\s\S]*?(?=>复制代码)/g
     if (content.match(reg01) && content.match(reg02)) {
       let index = 0
-      content=content.replace(reg01, ($1) => {
-        const classname=` code-0${index++}`
-        return $1+classname
+      content = content.replace(reg01, ($1) => {
+        const classname = ` code-0${index++}`
+        return $1 + classname
       })
-      content=content.replace(reg02, ($1) => {
-        const classname=` copy-0${index++}`
-        return $1+classname
+      content = content.replace(reg02, ($1) => {
+        const classname = `n copy-0${index++}"`
+        return $1.substr(0, $1.length - 2) + classname
       })
     }
     return content
+  }
+  /**
+   * 请求图片地址爬取图片
+   * @param {string} _html 
+   */
+  async fetchArticleImg(_html) {
+    const reg = /(?<=data-src=")[\s\S]+?(?=")/g
+    let urls = _html.match(reg)
+    for (let i = urls.length; i > 0; i -= 5) {
+      const limit = Math.min(5, i)
+      await async.mapLimit(urls, limit, async (url) => {
+        const res= await axios.get(url,{headers:{responseType:'stream'}}).catch((err) => {
+          this.ErrorLog.push(err, { url }, '获取详情页图片失败')
+        })
+        let suffix=res.headers && res.headers['content-type']
+        suffix=suffix.split('/').pop()
+        suffix=suffix.includes('webp')?'':`.${suffix}`
+        const file = fs.createWriteStream(path.resolve(__dirname, './db/image/'+Date.now()+suffix),{encoding:'binary'})
+        const inStream=new Readable()
+        inStream.push(res.data)
+        inStream.push(null)
+        inStream.pipe(file)
+      })
+    }
   }
   /**
    * 获取文章详情
@@ -295,11 +322,13 @@ class Spider {
           )
         })
       const content = await page.content().catch((err) => {
-        this.ErrorLog.push(err, {}, '获取详情页面内容失败')
+        this.ErrorLog.push(err, { url }, '获取详情页面内容失败')
       })
       const $ = cheerio.load(content, {
         decodeEntities: false
       })
+      // Todo 爬取图片无法打卡
+      // await this.fetchArticleImg(content)
       const rootElement = $(detailBaseSelector)
       const _baseClassName =
         baseClassName !== 'empty'
@@ -317,10 +346,10 @@ class Spider {
       const { content: _content } = detail
       const abstract = `${_content.substring(0, abstractLength)}...`
       db.set(`${listName}[${index}].detail`, abstract).write()
-      const detailContent=this.setCodeClass(_content)
+      const detailContent = this.setCodeClass(_content)
       db.get(detailListName)
         .push({
-          content:detailContent,
+          content: detailContent,
           id,
           author,
           title,
