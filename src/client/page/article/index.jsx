@@ -1,16 +1,13 @@
-import React, {  useContext, useCallback, useEffect } from 'react'
+import React, { useContext, useCallback, useEffect } from 'react'
 import { unmountComponentAtNode } from 'react-dom'
 import { withRouter } from 'react-router-dom'
 import { context } from '@/store'
-import {
-  classNames,
-  useLazyLoad,
-  useRequest,
-  copy as copyExec
-} from 'util'
+import { classNames, useRequest, copy as copyExec } from 'util'
 import { isEmptyData } from 'util'
-import { Loading, Empty } from '@/components'
+import cp from '@/components'
 import './index.scss'
+
+const {Loading, Empty} =cp
 
 function useCopyCode(articleDetail) {
   const copy = useCallback((index, codeList) => {
@@ -22,7 +19,7 @@ function useCopyCode(articleDetail) {
     const codeList = document.querySelectorAll('[class*=code-0]')
     if (!isEmptyData(articleDetail) && !articleDetail.noData) {
       for (let [index, btn] of Object.entries(Array.from(copyBtnList))) {
-        const copyHandler = copy.bind(null, index,codeList)
+        const copyHandler = copy.bind(null, index, codeList)
         btn.addEventListener('click', copyHandler)
       }
       return () => {
@@ -43,13 +40,13 @@ const Article = (props) => {
   const type = path.split('/')[1]
   const { getArticleDetail, articleDetail } = useContext(context)
   const { title, content, author, baseClassName } = articleDetail
-  useRequest(getArticleDetail,true, id, type)
+  useRequest(getArticleDetail, true, id, type)
   useCopyCode(articleDetail)
   // useLazyLoad(baseClassName)
   if (isEmptyData(articleDetail)) {
-    return <Loading />
-  } else if (articleDetail.noData) {
-    return <Empty />
+      return <Loading />
+    } else if (articleDetail.noData) {
+      return <Empty />
   }
   return (
     <div className='wrapper article'>

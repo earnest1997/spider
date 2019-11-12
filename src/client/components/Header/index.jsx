@@ -1,9 +1,9 @@
-import React, {  useEffect, useCallback, useRef } from 'react'
+import React, { useEffect, useCallback, useRef } from 'react'
 import { Hover } from 'perspective.js'
 import { withRouter } from 'react-router-dom'
 import { Input } from '../Input'
 import { useScroll } from 'util'
-import {Message} from '@/components'
+import cp from '@/components'
 import './index.scss'
 
 const Header = ({ history }) => {
@@ -11,11 +11,14 @@ const Header = ({ history }) => {
   const handleEnter = useCallback(
     (e) => {
       if (e.nativeEvent.keyCode === 13) {
-        if(!e.target.value){
-          Message.warning('请输入关键字')
+        if (!e.target.value) {
+          cp.Message.warning('请输入关键字')
           return
         }
-        history.push({pathname:`/search?q=${e.target.value}`,state:{keywords:e.target.value}})
+        history.push({
+          pathname: `/search?q=${e.target.value}`,
+          state: { keywords: e.target.value }
+        })
       }
     },
     [history]
@@ -38,7 +41,7 @@ const Header = ({ history }) => {
     })
   }, [])
   useEffect(() => {
-    console.log(window.getComputedStyle(headerRef.current).height,9000)
+    console.log(window.getComputedStyle(headerRef.current).height, 9000)
     // initAnimation(headerRef.current)
   }, [initAnimation])
 
@@ -52,7 +55,7 @@ const Header = ({ history }) => {
       {isSwitchHeader && placeholder}
       <div className={classNames} ref={headerRef}>
         <div className='row row-01' data-hover-layer='0'>
-          <i className='icon ion-md-search'/>
+          <i className='icon ion-md-search' />
           <Input onKeyUp={(e) => handleEnter(e)} />
         </div>
         <h2 className='row row-02' data-hover-layer='1'>

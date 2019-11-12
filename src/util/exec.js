@@ -1,4 +1,4 @@
-import { Message } from '@/components'
+import cp from '@/components'
 
 export function copy(text) {
   if ('execCommand' in document) {
@@ -8,8 +8,8 @@ export function copy(text) {
     dom.select()
     document.execCommand('copy')
     dom.remove()
-    Message.success('复制成功')
+    cp.Message.success('复制成功')
   } else {
-    Message.error('复制失败')
+    cp.Message.error('复制失败')
   }
 }

@@ -1,0 +1,19 @@
+@import '@/style';
+
+.backtotop{
+  position: fixed;
+  bottom: 10vh;
+  right: 5vw;
+  transition: all .3s;
+  @include wh(50,50);
+  transform: rotate(-53deg);
+  &.enter{
+    opacity: 0;
+    &-done{
+    opacity: 1;
+    }
+  }
+  &-exit{
+    opacity: 0;
+  }
+}

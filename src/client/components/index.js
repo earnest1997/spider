@@ -1,6 +1,2 @@
-export {default as ListItem} from './ListItem'
-export {default as Header} from './Header'
-export * from './Message'
-export * from './Input'
-export * from './Loading'
-export * from './Empty'
+import {importAll} from 'util'
+export default {...importAll(require.context('./',true,/\.*/),/index$/)}

@@ -1,5 +1,5 @@
 import React,{useContext} from 'react'
-import { ListItem } from '@/components'
+import cp from '@/components'
 import {context} from '@/store'
 // import {functionType} from '../../util/ts'
 import './index.scss'
@@ -10,7 +10,7 @@ export const Home =()=> {
       <div className='wrapper home'>
         <main>
           {hotArticleList.map((item) => (
-            <ListItem {...item} key={item.id} type='hot'/>
+            <cp.ListItem {...item} key={item.id} type='hot'/>
           ))}
         </main>
       </div>

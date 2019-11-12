@@ -1,6 +1,6 @@
 import { useEffect, useState,useRef, useCallback } from 'react'
 import { findDOMNode } from 'react-dom'
-import {Loading} from '@/components'
+import cp from '@/components'
 import { throttle } from './optimization'
 import { copy } from './exec'
 
@@ -102,7 +102,7 @@ export function useRequest(req,isLoading, ...arg) {
   const [data, setData] = useState()
   const loadingRef =useRef()
   useEffect(() => {
-    if(isLoading) loadingRef.current = Loading.show()
+    if(isLoading) loadingRef.current = cp.Loading.show()
     req(...arg).then((res) => {
       if (res && res.data) {
         setData(res.data)

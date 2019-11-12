@@ -1,63 +1,67 @@
 /**
  * 扁平化数组
- * @param {*} arg 
+ * @param {*} arg
  */
-export function flatten(arg){
-  return arg.reduce((prev,next)=>{
-    return prev.concat(Array.isArray(next) && flatten(next) || next)
-  },[])
+export function flatten(arg) {
+  return arg.reduce((prev, next) => {
+    return prev.concat((Array.isArray(next) && flatten(next)) || next)
+  }, [])
 }
 /**
  * 生成唯一ID
- * @param {*} length 
+ * @param {*} length
  */
-export function genID (length = 5) {
-  return Number(Math.random().toString().substr(3,length) + Date.now()).toString(36);
-  }
+export function genID(length = 5) {
+  return Number(
+    Math.random()
+      .toString()
+      .substr(3, length) + Date.now()
+  ).toString(36)
+}
 /**
  * 生成可以获得index的可枚举对象
- * @param {*} obj 
+ * @param {*} obj
  */
 export function* enumerate(obj) {
-    let index = 0
-    for (let k in obj) {
-      yield [index, k]
-    }
-    index++
+  let index = 0
+  for (let k in obj) {
+    yield [index, k]
   }
+  index++
+}
 /**
  * 过滤html标签
- * @param {*} html 
+ * @param {*} html
  */
-export function filterHtmlTag(html){
-  const reg=/(\<\/?[a-z]+[^\>]*\>|\\n|\s)/g
-  return html.match(reg)&&html.replace(reg,'') || html
+export function filterHtmlTag(html) {
+  const reg = /(\<\/?[a-z]+[^\>]*\>|\\n|\s)/g
+  return (html.match(reg) && html.replace(reg, '')) || html
 }
 /**
  * 过滤类名
- * @param {*} html 
+ * @param {*} html
  */
-export function filterClass(html){
-  const reg=/class=\\"[\w-]+\\"/g
-  return html.match(reg)&&html.replace(reg,'') || html
+export function filterClass(html) {
+  const reg = /class=\\"[\w-]+\\"/g
+  return (html.match(reg) && html.replace(reg, '')) || html
 }
 /**
  * 过滤含有无效值的对象
- * @param {*} objArr 
+ * @param {*} objArr
  */
-export function filterObjWithInvalidVal(objArr){
-  return objArr.filter(obj=>Object.values(obj).every(val=>!!val))
+export function filterObjWithInvalidVal(objArr) {
+  return objArr.filter((obj) => Object.values(obj).every((val) => !!val))
   // return objArr
 }
 /**
  * 合并多个函数
- * @param  {...any} f 
+ * @param  {...any} f
  */
-export function compose(...f){
-  if(f.length===1){
+export function compose(...f) {
+  if (f.length === 1) {
     return f()
-  }else{
-    return f.reduce((a,b)=>(...args)=>a(b(...args)))
+  } else {
+    return f.reduce((a, b) => (...args) => a(b(...args)))
   }
 }
 /**
@@ -66,7 +70,7 @@ export function compose(...f){
  * @returns {boolean}
  */
 export function isObject(item) {
-  return (item && typeof item === 'object' && !Array.isArray(item));
+  return item && typeof item === 'object' && !Array.isArray(item)
 }
 
 /**
@@ -75,93 +79,105 @@ export function isObject(item) {
  * @param ...sources
  */
 export function mergeDeep(target, ...sources) {
-  if (!sources.length) return target;
-  const source = sources.shift();
+  if (!sources.length) return target
+  const source = sources.shift()
 
   if (isObject(target) && isObject(source)) {
     for (const key in source) {
       if (isObject(target[key]) && isObject(source[key])) {
-        mergeDeep(target[key], source[key]);
+        mergeDeep(target[key], source[key])
       } else {
-        Object.assign(target, { [key]: source[key] });
+        Object.assign(target, { [key]: source[key] })
       }
     }
   }
 
-  return mergeDeep(target, ...sources);
+  return mergeDeep(target, ...sources)
 }
 /**
  * 过滤掉对象中的属性
- * @param {Array} property 
- * @param {object} obj 
+ * @param {Array} property
+ * @param {object} obj
  */
-export function omit(property,obj){
-  const _obj={...obj}
-for(let k in _obj){
-  if(property.includes(k)){
-    Reflect.deleteProperty(_obj,k)
+export function omit(property, obj) {
+  const _obj = { ...obj }
+  for (let k in _obj) {
+    if (property.includes(k)) {
+      Reflect.deleteProperty(_obj, k)
+    }
   }
-}
-return _obj
+  return _obj
 }
 /**
  * 调用多个函数
  */
 export function createChainedFunction() {
-  var args = arguments;
+  var args = arguments
   return function chainedFunction() {
     for (var i = 0; i < args.length; i++) {
       if (args[i] && args[i].apply) {
-        args[i].apply(this, arguments);
+        args[i].apply(this, arguments)
       }
     }
-  };
+  }
 }
 
-function fixZero(date){
-  return (date+'').padStart(2,'0')
+function fixZero(date) {
+  return (date + '').padStart(2, '0')
 }
 /**
  * 格式化日期
- * @param {string} time 
- * @param {string} format 
+ * @param {string} time
+ * @param {string} format
  */
-export function dateFormat(time,format){
-  const date=new Date(time)
-  return format.replace(/yyyy/gi,date.getFullYear())
-  .replace(/MM/gi,fixZero(date.getMonth()+1))
-  .replace(/dd/gi,fixZero(date.getDate()))
-  .replace(/hh/gi,fixZero(date.getHours()))
-  .replace(/mm/gi,fixZero(date.getMinutes()))
-  .replace(/ss/gi,fixZero(date.getSeconds()))
+export function dateFormat(time, format) {
+  const date = new Date(time)
+  return format
+    .replace(/yyyy/gi, date.getFullYear())
+    .replace(/MM/gi, fixZero(date.getMonth() + 1))
+    .replace(/dd/gi, fixZero(date.getDate()))
+    .replace(/hh/gi, fixZero(date.getHours()))
+    .replace(/mm/gi, fixZero(date.getMinutes()))
+    .replace(/ss/gi, fixZero(date.getSeconds()))
 }
 /**
  * 判断是否爬到数据
- * @param {object} obj 
+ * @param {object} obj
  */
-export function isEmptyData(obj){
-  if(Array.isArray(obj) && !obj.length){
+export function isEmptyData(obj) {
+  if (Array.isArray(obj) && !obj.length) {
     return true
-  } else if(Object.values(obj).every(val=>!val)){
+  } else if (Object.values(obj).every((val) => !val)) {
     return true
   }
   return false
 }
 /**
  * 引入多个文件
- * @param {function} r 
+ * @param {function} r
  */
-export function importAll(r) {
+export function importAll(r,reg) {
   let cache = {}
   r.keys()
-    .filter((item) => item !== './index.js')
+    .filter((item) => {
+      if(reg){
+        return reg.test(item) && item !== './index.js'
+      }
+      return item !== './index.js'})
     .forEach((key) => {
-      cache[key] = r(key)
+      const start = key.indexOf('/')
+      let end
+      if (key.indexOf('/') !== key.lastIndexOf('/')) {
+        end = key.lastIndexOf('/')
+      } else {
+        end = key.lastIndexOf('.')
+      }
+      const _key = key.substring(start + 1, end)
+      cache[_key] = r(key).default ? r(key).default : (r(key)[_key] || r(key))
     })
+  console.log(cache)
   return cache
 }
-
-
 
 // exports = {
 //   flatten,
