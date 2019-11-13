@@ -1,59 +1,74 @@
-import {
-  getSearchResultListApi,
-  getHotArticleListApi,
-  getArticleDetailApi,
-} from '@/service'
-import React, { useReducer, createContext } from 'react'
+import React, { useReducer, createContext, forwardRef } from 'react'
+import {article,articleSagas} from './article'
 
 export const context = createContext()
-const reducers = (state, action) => {
-  const {
-    type,
-    hotArticleList,
-    searchResultList,
-    articleDetail
-  } = action
-  switch (type) {
-    case 'setHotArticleList':
-      return { ...state, ...{ hotArticleList } }
-    case 'setSearchResultList':
-      return { ...state, ...{ searchResultList } }
-    case 'setArticleDetail':
-      return { ...state, ...{ articleDetail } }
-    default:
-      return state
+
+/**
+ *
+ * @param {object} reducers
+ */
+function combineReducers(reducers) {
+  const reducerKeys = Object.keys(reducers)
+  const reducerVals = Object.values(reducers)
+  if (reducerVals.some((item) => typeof item !== 'function')) {
+    throw new Error('invalid reducer')
   }
-}
-// 搜索文章列表
-const getSearchListSaga = (dispatch) => async (keywords) => {
-  const {data:searchResultList} = await getSearchResultListApi(keywords)
-  dispatch({ type: 'setSearchResultList',searchResultList})
-}
-// 获取文章详情
-const getArticleDetailSaga = (dispatch) => async (id,type) => {
-  const {data:articleDetail }= await getArticleDetailApi(id,type)
-  dispatch({ type: 'setArticleDetail', articleDetail })
-}
-// 获取热门文章
-const getHotArticleListSaga =dispatch =>async () =>{
-  const {data:hotArticleList} = await getHotArticleListApi()
-  dispatch({ type: 'setHotArticleList', hotArticleList })
+  return (state, action) => {
+    let hasChanged = false
+    let nextState = {}
+    for (let key of reducerKeys) {
+      const reducer = reducers[key]
+      const prevStateForKey = state[key]
+      const nextStateForKey = reducer(prevStateForKey, action)
+      hasChanged = prevStateForKey !== nextStateForKey
+      nextState[key] = nextStateForKey
+    }
+    console.log( Object.assign({},state,nextState),state,'sate',hasChanged)
+    return hasChanged ? Object.assign({},state,nextState) : state
+  }
 }
 
-function combineSagas() {
-  const initialState = {
-    hotArticleList: [],
-    searchResultList: [],
-    articleDetail: { title: '', content: '', author: '' }
+const rootReducers=combineReducers({article})
+
+const initialState = {
+  article:{
+  hotArticleList: [],
+  searchResultList: [],
+  articleDetail: { title: '', content: '', author: '' }
   }
-  const [state, dispatch] = useReducer(reducers, initialState) //eslint-disable-line
+}
+function combineSagas(sagas) {
+  const [state, dispatch] = useReducer(rootReducers, initialState) //eslint-disable-line
+  let finalSagas={}
+  for(let key in sagas){
+    const saga=sagas[key](dispatch)
+   finalSagas[key]=saga
+  }
   return {
     ...state,
-    ...{ getSearchList: getSearchListSaga(dispatch) },
-    ...{ getArticleDetail: getArticleDetailSaga(dispatch) },
-    ...{ getHotArticleList: getHotArticleListSaga(dispatch)}
+    ...finalSagas
   }
 }
+
+
 export const ContextProvider = ({ children }) => {
-  return <context.Provider value={combineSagas()}>{children}</context.Provider>
+  const rootSagas=combineSagas({...articleSagas})
+  return <context.Provider value={rootSagas}>{children}</context.Provider>
 }
+
+export const connect = (mapStateToProps) => (component) =>
+  forwardRef((props, ref) => {
+    return (
+      <context.Consumer>
+        {(initialState) =>
+          (() => {
+            if (typeof mapStateToProps === 'function') {
+              props = { ...props, ...mapStateToProps(initialState, props) }
+            }
+            console.log(props, 'opp')
+            return React.createElement(component, { ...props, ref })
+          })()
+        }
+      </context.Consumer>
+    )
+  })

@@ -46,10 +46,14 @@ const Header = ({ history }) => {
   }, [initAnimation])
 
   const isSwitchHeader = useScroll(333.5)
+
   const classNames = !isSwitchHeader
-    ? 'header header-pc'
-    : 'header header-mobile'
-  const placeholder = <div style={{ height: 400, width: '100vw' }}></div>
+    ? 'header header-banner'
+    : 'header header-bar'
+  let style = isSwitchHeader
+    ? { height: 400, width: '100vw' }
+    : { height: 115, width: '100vw' }
+  const placeholder = <div style={style}></div>
   return (
     <>
       {isSwitchHeader && placeholder}

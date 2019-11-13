@@ -8,7 +8,7 @@ const cheerio = require('cheerio')
 const puppeteer = require('puppeteer')
 const axios = require('axios')
 const async = require('async')
-const {Readable} = require('stream')
+const { Readable } = require('stream')
 const db = require(path.resolve(__dirname, './db/index.js'))
 // 配置
 const { searchMap } = require(path.resolve(
@@ -26,13 +26,14 @@ const {
   genID,
   filterObjWithInvalidVal,
   compose,
-  omit
+  omit,
+  filterHtmlTag
 } = require(path.resolve(__dirname, './util/index.js'))
 // 错误记录
 const { ErrorLog } = require(path.resolve(__dirname, './log/index.js'))
 
 const srcHtml = path.resolve(__dirname, '../src/index.tpl.html')
-// @classType(type.Ispider)
+
 class Spider {
   /**
    *
@@ -42,17 +43,20 @@ class Spider {
   constructor(operation, options = { keywords: 'node' }) {
     this.operation = operation
     this.options = options
-    // return new Proxy(this, {
-    //   set: (target, key, value) => {
-    //     return true
-    //   }
-    // })
   }
   start() {
-    this[`${this.operation}Article`](this.options)
+    this[this.operation](this.options)
     this.ErrorLog = new ErrorLog()
-    // fs.truncateSync(path.resolve(__dirname,'./db.json'),0,function(){console.log('unset db')})
-    // this.searchArticle( { keywords: 'node' })
+    if (this.operation.startsWith('search')) {
+      db.set('searchResList', [])
+      db.set('searchArticleDetailLis', [])
+    }
+  }
+
+  cleanDb() {
+    fs.truncateSync(path.resolve(__dirname, './db.json'), 0, function() {
+      console.log('unset db')
+    })
   }
 
   createStorePath() {
@@ -127,12 +131,13 @@ class Spider {
     for (let [k, v] of hotMap.entries()) {
       const { baseUrl, maxLength, baseSelector, data, cssSource } = v
       const cssLink = `<link href="${cssSource}" rel="stylesheet">`
-      const htmlContent = fs
-        .readFileSync(srcHtml, 'utf-8')
-        .replace(/<title>/, ($1) => {
+      const htmlContent = fs.readFileSync(srcHtml, 'utf-8')
+      if (!htmlContent.includes(cssLink)) {
+        const htmlContentWithCss = htmlContent.replace(/<title>/, ($1) => {
           return cssLink + $1
         })
-      fs.writeFile(srcHtml, htmlContent, 'utf-8')
+        fs.writeFile(srcHtml, htmlContentWithCss, 'utf-8')
+      }
       await page.goto(baseUrl).catch((err) => {
         this.ErrorLog.push(err, { baseUrl }, '跳转热门页面失败')
       })
@@ -261,7 +266,7 @@ class Spider {
   }
   /**
    * 请求图片地址爬取图片
-   * @param {string} _html 
+   * @param {string} _html
    */
   async fetchArticleImg(_html) {
     const reg = /(?<=data-src=")[\s\S]+?(?=")/g
@@ -269,14 +274,19 @@ class Spider {
     for (let i = urls.length; i > 0; i -= 5) {
       const limit = Math.min(5, i)
       await async.mapLimit(urls, limit, async (url) => {
-        const res= await axios.get(url,{headers:{responseType:'stream'}}).catch((err) => {
-          this.ErrorLog.push(err, { url }, '获取详情页图片失败')
-        })
-        let suffix=res.headers && res.headers['content-type']
-        suffix=suffix.split('/').pop()
-        suffix=suffix.includes('webp')?'':`.${suffix}`
-        const file = fs.createWriteStream(path.resolve(__dirname, './db/image/'+Date.now()+suffix),{encoding:'binary'})
-        const inStream=new Readable()
+        const res = await axios
+          .get(url, { headers: { responseType: 'stream' } })
+          .catch((err) => {
+            this.ErrorLog.push(err, { url }, '获取详情页图片失败')
+          })
+        let suffix = res.headers && res.headers['content-type']
+        suffix = suffix.split('/').pop()
+        suffix = suffix.includes('webp') ? '' : `.${suffix}`
+        const file = fs.createWriteStream(
+          path.resolve(__dirname, './db/image/' + Date.now() + suffix),
+          { encoding: 'binary' }
+        )
+        const inStream = new Readable()
         inStream.push(res.data)
         inStream.push(null)
         inStream.pipe(file)
@@ -290,7 +300,6 @@ class Spider {
    * @param {string} detailListName 详情列表
    */
   async fetchArticleDetail(data, listName, detailListName) {
-    db.set(detailListName, []).write()
     const browser = await puppeteer.launch({ headless: true })
     const abstractLength = 250
     for (let [index, item] of Object.entries(data)) {
@@ -344,7 +353,10 @@ class Spider {
         detail[k] = rootElement.find(v.selector).html()
       }
       const { content: _content } = detail
-      const abstract = `${_content.substring(0, abstractLength)}...`
+      const abstract = `${filterHtmlTag(_content).substring(
+        0,
+        abstractLength
+      )}...`
       db.set(`${listName}[${index}].detail`, abstract).write()
       const detailContent = this.setCodeClass(_content)
       db.get(detailListName)
@@ -373,8 +385,9 @@ class Spider {
 // 根据命令行参数执行对应的命令
 (function getArgStart() {
   const operationMap = {
-    s: 'search',
-    h: 'fetchHot'
+    s: 'searchArticle',
+    h: 'fetchHotArticle',
+    c: 'cleanDb'
   }
   let argArr = [...process.argv]
   const operation = operationMap[argArr[2]]

@@ -5,6 +5,7 @@
   bottom: 10vh;
   right: 5vw;
   transition: all .3s;
+  z-index:10;
   @include wh(50,50);
   transform: rotate(-53deg);
   &.enter{

@@ -13,13 +13,17 @@
     line-height: 2rem;
     padding: 0 0.5rem 0 2rem;
     outline: none;
+    @include respond-to {
+      display: none;
+    }
   }
   .row-01 {
     position: relative;
+    float: right;
     @include flex;
     i {
       position: absolute;
-      left: r(10);
+      left: r(14);
       font-size: 20px;
       z-index: 1;
       opacity: 0.7;
@@ -27,16 +31,21 @@
       &:hover {
         cursor: pointer;
       }
+      @include respond-to {
+        color: #fff;
+        opacity: 1;
+        position: initial;
+      }
     }
   }
-  &-pc {
-    background: url('https://ftp.bmp.ovh/imgs/2019/10/3d499092089343c6.jpg');
+  &-banner {
+    background-image: url('../../static/banner.jpg');
     width: 100vw;
     height: r(400);
     background-size: cover;
     background-repeat: no-repeat;
-    background-position-y: r(-100);
-    padding: r(100);
+    // background-position-y: 1rem;
+    padding: 1rem;
     position: relative;
     box-sizing: border-box;
     animation: fade 0.3s linear;
@@ -50,29 +59,29 @@
     }
     .row {
       &-01 {
-        position: absolute;
         min-width: r(40);
         height: r(50);
-        right: r(100);
-        top: r(20);
       }
     }
     h2 {
-      font-size: r(80);
+      width: 7ch;
+      font-size: 10ch;
       position: absolute;
       top: 50%;
       left: 50%;
       -webkit-transform: translate(-50%, -50%);
       transform: translate(-50%, -50%);
-      font-family: 'Varela Round', 'Microsoft YaHei', 'Source Sans Pro',
-        'Helvetica Neue', Menlo, Monaco, monospace, 'Lucida Console', sans-serif,
-        Helvetica, 'Hiragino Sans GB', 'Hiragino Sans GB W3',
-        Source Han Sans CN Regular, WenQuanYi Micro Hei, Arial, sans-serif;
-      color: palette('content', 'active');
-      font-weight: bold;
+      color: #fff;
+      overflow: hidden;
+      white-space: nowrap;
+      animation: typing 1s steps(7, end);
+      @include respond-to {
+        font-size: 3rem;
+        animation: none;
+      }
     }
   }
-  &-mobile {
+  &-bar {
     z-index: 1;
     @include flex(space-between, center, row-reverse);
     padding: 10px 20px;
@@ -87,7 +96,17 @@
       box-sizing: border-box;
     }
     h2 {
+      font-size: 24px;
       color: #fff;
     }
+  }
+}
+/* The typing effect */
+@keyframes typing {
+  from {
+    width: 0;
+  }
+  to {
+    width: 7ch;
   }
 }

@@ -1,13 +1,13 @@
-import React, { useContext, useCallback, useEffect } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { unmountComponentAtNode } from 'react-dom'
 import { withRouter } from 'react-router-dom'
-import { context } from '@/store'
 import { classNames, useRequest, copy as copyExec } from 'util'
+import {connect} from '@/store'
 import { isEmptyData } from 'util'
 import cp from '@/components'
 import './index.scss'
 
-const {Loading, Empty} =cp
+const { Loading, Empty } = cp
 
 function useCopyCode(articleDetail) {
   const copy = useCallback((index, codeList) => {
@@ -35,18 +35,19 @@ const Article = (props) => {
     match: {
       params: { id },
       path
-    }
+    },
+    getArticleDetail,
+    articleDetail
   } = props
   const type = path.split('/')[1]
-  const { getArticleDetail, articleDetail } = useContext(context)
   const { title, content, author, baseClassName } = articleDetail
   useRequest(getArticleDetail, true, id, type)
   useCopyCode(articleDetail)
   // useLazyLoad(baseClassName)
   if (isEmptyData(articleDetail)) {
-      return <Loading />
-    } else if (articleDetail.noData) {
-      return <Empty />
+    return <Loading />
+  } else if (articleDetail.noData) {
+    return <Empty />
   }
   return (
     <div className='wrapper article'>
@@ -64,4 +65,9 @@ const Article = (props) => {
   )
 }
 
-export default withRouter(Article)
+export default withRouter(
+  connect((state) => ({
+    articleDetail: state.article.articleDetail,
+    getArticleDetail: state.getArticleDetail
+  }))(Article)
+)

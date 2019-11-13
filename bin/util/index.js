@@ -89,6 +89,16 @@ function dateFormat(time,format){
   .replace(/ss/gi,fixZero(date.getSeconds()))
 }
 
+function filterClass(html) {
+  const reg = /class=\\"[\w-]+\\"/g
+  return (html.match(reg) && html.replace(reg, '')) || html
+}
+
+function filterHtmlTag(html) {
+  const reg = /(\<\/?[a-z]+[^\>]*\>|\\n|\s)/g
+  return (html.match(reg) && html.replace(reg, '')) || html
+}
+
 module.exports={
   flatten,
   genID,
@@ -96,5 +106,7 @@ module.exports={
   compose,
   omit,
   mergeDeep,
-  dateFormat
+  dateFormat,
+  filterClass,
+  filterHtmlTag
 }
