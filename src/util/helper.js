@@ -175,7 +175,6 @@ export function importAll(r,reg) {
       const _key = key.substring(start + 1, end)
       cache[_key] = r(key).default ? r(key).default : (r(key)[_key] || r(key))
     })
-  console.log(cache)
   return cache
 }
 

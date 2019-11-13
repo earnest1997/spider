@@ -3,7 +3,7 @@ import {
   getHotArticleListApi,
   getArticleDetailApi,
 } from '@/service'
-import React, { useEffect, useReducer, createContext } from 'react'
+import React, { useReducer, createContext } from 'react'
 
 export const context = createContext()
 const reducers = (state, action) => {
@@ -30,21 +30,14 @@ const getSearchListSaga = (dispatch) => async (keywords) => {
   dispatch({ type: 'setSearchResultList',searchResultList})
 }
 // 获取文章详情
-
-// // 热门文章列表
-// const getHotArticleListSaga=(dispatch) => async (id) => {
-//   const articleDetail = await getHotArticleListApi(id)
-//   dispatch({ type: 'setArticleDetail', articleDetail })
-// }
-// 热门文章详情
-// const getHotArticleDetailSaga = (dispatch) => async (id) => {
-//   const hotArticleDetail = await getHotArticleDetailApi(id)
-//   dispatch({ type: 'setHotArticleDetail', hotArticleDetail })
-// }
-// 获取文章详情
 const getArticleDetailSaga = (dispatch) => async (id,type) => {
   const {data:articleDetail }= await getArticleDetailApi(id,type)
   dispatch({ type: 'setArticleDetail', articleDetail })
+}
+// 获取热门文章
+const getHotArticleListSaga =dispatch =>async () =>{
+  const {data:hotArticleList} = await getHotArticleListApi()
+  dispatch({ type: 'setHotArticleList', hotArticleList })
 }
 
 function combineSagas() {
@@ -53,28 +46,12 @@ function combineSagas() {
     searchResultList: [],
     articleDetail: { title: '', content: '', author: '' }
   }
-  const [state, dispatch] = useReducer(reducers, initialState)
-  useEffect(() => {
-    getHotArticleListApi()
-      .then((res) => {
-        const hotArticleList = res.data
-        dispatch({ type: 'setHotArticleList', hotArticleList })
-      })
-      .catch((err) => {
-        console.log(err, 'fetchhot err')
-      })
-    // getArticleDetailApi()
-    //   .then(articleDetail=>{
-    //     dispatch({type:'setArticleDetail',articleDetail})
-    //   })
-    //   .catch(err=>{
-    //     console.log(err,'fetch hot detail err')
-    //   })
-  }, [])
+  const [state, dispatch] = useReducer(reducers, initialState) //eslint-disable-line
   return {
     ...state,
     ...{ getSearchList: getSearchListSaga(dispatch) },
-    ...{ getArticleDetail: getArticleDetailSaga(dispatch) }
+    ...{ getArticleDetail: getArticleDetailSaga(dispatch) },
+    ...{ getHotArticleList: getHotArticleListSaga(dispatch)}
   }
 }
 export const ContextProvider = ({ children }) => {

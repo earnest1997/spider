@@ -1,11 +1,13 @@
-import React,{useContext} from 'react'
+import React,{useContext,useEffect} from 'react'
 import cp from '@/components'
 import {context} from '@/store'
-// import {functionType} from '../../util/ts'
 import './index.scss'
 
 export const Home =()=> {
-    const {hotArticleList}=useContext(context)
+    const {hotArticleList,getHotArticleList}=useContext(context)
+    useEffect(()=>{
+      getHotArticleList()
+    },[]) //eslint-disable-line
     return (
       <div className='wrapper home'>
         <main>
