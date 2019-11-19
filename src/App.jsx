@@ -11,7 +11,7 @@ import cp from '@/components'
 import { ErrorBoundary } from '@/page'
 import '@/style/common.scss'
 
-const { Header, BackToTop } = cp
+const { Header, BackToTop ,Footer} = cp
 
 export const App = () => {
   return (
@@ -35,6 +35,7 @@ export const App = () => {
                 <Route path='/search' component={page.Search} />
                 <Route path='*' render={() => <Redirect to='/404' />} />
               </Switch>
+              <Footer/>
             </React.Fragment>
           </Switch>
         </Router>

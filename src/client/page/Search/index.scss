@@ -1,0 +1,13 @@
+@import '@/style';
+.search{
+  background: transparent;
+  main{
+    margin-top: 1rem;
+  }
+  &-inner-wrapper{
+  h2{
+    font-size: 20px;
+    padding: r(30);
+  }
+  }
+}

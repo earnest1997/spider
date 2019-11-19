@@ -45,7 +45,9 @@ module.exports = {
     'react/jsx-uses-vars': 'warn',
     'react/prop-types': 0,
     'react/display-name':0,
-    'react/no-find-dom-node':0
+    'react/no-find-dom-node':0,
+    'no-unused-vars':1,
+    'no-prototype-builtins':0
   },
   settings: {
     'import/ignore': ['node_modules']

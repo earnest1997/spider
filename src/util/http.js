@@ -8,7 +8,7 @@ import axios from 'axios'
 // }
 const _axios = axios.create({
   baseURL: 'http://0.0.0.0:3000',
-  timeout: 28000,
+  timeout: 38000,
   // headers
 })
 _axios.interceptors.request.use(
@@ -25,7 +25,6 @@ _axios.interceptors.response.use(
     return res
   },
   (err) => {
-    console.log('响应错误', err)
     return Promise.reject(err)
   }
 )

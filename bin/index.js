@@ -48,8 +48,8 @@ class Spider {
     this[this.operation](this.options)
     this.ErrorLog = new ErrorLog()
     if (this.operation.startsWith('search')) {
-      db.set('searchResList', [])
-      db.set('searchArticleDetailLis', [])
+      db.set('searchResList', []).write()
+      db.set('searchArticleDetailList', []).write()
     }
   }
 
@@ -179,7 +179,7 @@ class Spider {
       decodeEntities: false
     })
     const rootElement = $(baseSelector)
-    const articleLength = rootElement.children().length
+    const articleLength= rootElement.children().length
     const listCount = articleLength < maxLength ? articleLength : maxLength
     let urlsWithKey = this.generateList(
       listCount,
@@ -375,7 +375,7 @@ class Spider {
   endExec() {
     this.ErrorLog.end()
     if (process.send) {
-      process.send('end')
+      process.send(db.get('searchResList').value())
     }
     process.exit(0)
   }

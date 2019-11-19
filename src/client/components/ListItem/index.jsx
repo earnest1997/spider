@@ -21,9 +21,9 @@ const ListItem = (props) => {
     <div className='list-item' onClick={() => handleClick(id,type, push)} key={id}>
       <div className='row row-01'>{title}</div>
       <div className='row row-02'>
-        <i className='icon ion-md-wifi'></i>&nbsp;<span>来源于{source}</span>
+        <i className='icon ion-md-wifi'></i><span>来源于{source}</span>
         <span>{author}</span>
-        <i className='icon ion-md-time'></i>&nbsp;
+        <i className='icon ion-md-time'></i>
         <span>{time}</span>
       </div>
       <div className='row row-03' dangerouslySetInnerHTML={{__html:detail}}/>

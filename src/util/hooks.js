@@ -41,9 +41,17 @@ export function useLazyLoad(baseClassName) {
   }, [baseClassName])
 }
 
-export function useClickOutSide(ref, handler) {
+export function useClickOutSide(ref, handler,addition=true) {
   useEffect(() => {
-    const dom = findDOMNode(ref.current)
+    if(!addition){
+      return
+    }
+    let dom
+    if(!(ref.hasOwnProperty('current'))){
+      dom=document.getElementsByClassName(ref)[0]
+    }else{
+    dom = findDOMNode(ref.current) 
+    }
     dom.addEventListener('click', (e) => {
       e.stopPropagation()
       e.nativeEvent.stopImmediatePropagation()
@@ -52,7 +60,7 @@ export function useClickOutSide(ref, handler) {
     return () => {
       document.removeEventListener('click', handler)
     }
-  }, [handler, ref])
+  }, [handler, ref,addition])
 }
 
 export function useScroll(distance) {
@@ -97,7 +105,12 @@ export function useCopy(selector = 'copy-code-btn') {
     }
   }, [selector])
 }
-
+/**
+ * 挂载组件的时候发起请求
+ * @param {*} req 
+ * @param {*} isLoading 
+ * @param  {...any} arg 
+ */
 export function useRequest(req,isLoading, ...arg) {
   const [data, setData] = useState()
   const loadingRef =useRef()
@@ -112,4 +125,27 @@ export function useRequest(req,isLoading, ...arg) {
     })
   }, []) // eslint-disable-line
   return [data,setData]
+}
+const resizeHandler=(isSmallScreen,setScreen)=>{
+ if(window.innerWidth < 768){
+   if(isSmallScreen === true){
+     return
+   }
+   setScreen(true)
+ }else if(window.innerWidth > 768){
+   if(isSmallScreen === false){
+     return
+   }
+   setScreen(false)
+ }
+}
+export function useDeviceScreen(){
+  const [isSmallScreen,setScreen]=useState()
+  const resize=resizeHandler.bind(null,isSmallScreen,setScreen)
+  useEffect(()=>{
+    resize()
+    window.addEventListener('resize',resize)
+    return ()=>window.removeEventListener('resize',resizeHandler)
+  },[]) // eslint-disable-line
+  return [isSmallScreen,setScreen]
 }

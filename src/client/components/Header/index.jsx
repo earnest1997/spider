@@ -1,28 +1,45 @@
-import React, { useEffect, useCallback, useRef } from 'react'
+import React, { useEffect, useCallback, useRef, useState } from 'react'
 import { Hover } from 'perspective.js'
-import { withRouter } from 'react-router-dom'
-import { Input } from '../Input'
-import { useScroll } from 'util'
+import { withRouter, Link } from 'react-router-dom'
+import { useScroll, useDeviceScreen } from 'util'
+import { connect } from '@/store'
 import cp from '@/components'
 import './index.scss'
 
-const Header = ({ history }) => {
+const Header = ({ history, getSearchList, location }) => {
   const headerRef = useRef()
+  const [val, setVal] = useState()
+  const [drawerVisible, setDrawerVisible] = useState(false)
+  const handleMenuClick = useCallback(
+    () => setDrawerVisible((prev) => !prev),
+    []
+  )
+  const handleChange = (e) => {
+    setVal(e.target.value)
+  }
   const handleEnter = useCallback(
     (e) => {
-      if (e.nativeEvent.keyCode === 13) {
+      if (e.nativeEvent.keyCode === 13 || e.type === 'click') {
         if (!e.target.value) {
-          cp.Message.warning('请输入关键字')
+          return
+        }
+        setVal('')
+        if (location.pathname.includes('search')) {
+          getSearchList(e.target.value)
           return
         }
         history.push({
-          pathname: `/search?q=${e.target.value}`,
+          pathname: '/search',
+          query: { q: e.target.value },
           state: { keywords: e.target.value }
         })
       }
     },
-    [history]
+    [getSearchList, history, location.pathname]
   )
+  const handleItemClick = useCallback(() => {
+    setDrawerVisible(!drawerVisible)
+  }, [drawerVisible])
   const initAnimation = useCallback((dom) => {
     new Hover(dom, {
       max: 1,
@@ -41,12 +58,14 @@ const Header = ({ history }) => {
     })
   }, [])
   useEffect(() => {
-    console.log(window.getComputedStyle(headerRef.current).height, 9000)
+    if (window.sessionStorage.keywords) {
+      setVal(window.sessionStorage.keywords)
+    }
     // initAnimation(headerRef.current)
   }, [initAnimation])
 
   const isSwitchHeader = useScroll(333.5)
-
+  const [isSmallScreen] = useDeviceScreen()
   const classNames = !isSwitchHeader
     ? 'header header-banner'
     : 'header header-bar'
@@ -59,15 +78,33 @@ const Header = ({ history }) => {
       {isSwitchHeader && placeholder}
       <div className={classNames} ref={headerRef}>
         <div className='row row-01' data-hover-layer='0'>
-          <i className='icon ion-md-search' />
-          <Input onKeyUp={(e) => handleEnter(e)} />
+          {isSmallScreen && isSwitchHeader ? (
+            <i className='icon ion-md-menu' onClick={handleMenuClick} />
+          ) : (
+            <i className='icon ion-md-search' />
+          )}
+          <input
+            onKeyUp={(e) => handleEnter(e)}
+            onClick={(e) => handleEnter(e)}
+            value={val}
+            onChange={(e) => handleChange(e)}
+          />
         </div>
         <h2 className='row row-02' data-hover-layer='1'>
           FE News
         </h2>
+        <cp.Drawer visible={drawerVisible} toggleVisible={handleMenuClick}>
+        <div className='menu-mobile'>
+          <Link to='/' onClick={handleItemClick}>
+            首页
+          </Link>
+          </div>
+        </cp.Drawer>
       </div>
     </>
   )
 }
 
-export default withRouter(Header)
+export default withRouter(
+  connect((store) => ({ getSearchList: store.getSearchList }))(Header)
+)

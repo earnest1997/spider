@@ -3,7 +3,7 @@ const path = require('path')
 const db = require(path.resolve(__dirname, '../../bin/db/index.js'))
 const app = new koa()
 const router = require('koa-router')()
-const {fork} = require('child_process')
+const { fork } = require('child_process')
 // const util=require('util')
 const schedule = require('node-schedule')
 
@@ -11,12 +11,19 @@ const schedule = require('node-schedule')
  * 获取热门文章列表
  */
 router.get('/getHotArticleList', async (ctx, next) => {
-  const _data= db.get('hotResList') || {noData:true}
-  ctx.body = { data:_data}
+  const { startIndex, requestCount } = ctx.query
+  const _data = {
+    list: db.get('hotResList').slice(startIndex, requestCount),
+    total: db
+      .get('hotResList')
+      .size()
+      .value()
+  } || {
+    noData: true
+  }
+  ctx.body = { data: _data }
   await next()
 })
-// Todo 当脚本文件执行时间过长的时候 回调函数不会执行
-// 轮询 获取从数据库获得数据 当长度大于指定的长度时返回结果
 // function getSearchResultFromDb() {
 //   let pollCount = 0
 //   const pollInterval = 2000
@@ -49,18 +56,17 @@ router.get('/getHotArticleList', async (ctx, next) => {
 /**
  * 获取搜索文章结果列表
  */
-router.get('/getSearchResultList', async (ctx, next) => {
+router.get('/getsearchList', async (ctx, next) => {
   const { keywords } = ctx.query
-  const child=fork('./bin/index.js',['s','@keywords',`_${keywords}`])
-  const data=await new Promise ((resolve)=>{
-    child.on('message',async m=>{
-    console.log(m,'收到')
-    const searchResult=db.get('searchResList').value()
-    resolve(searchResult)
+  const child = fork('./bin/index.js', ['s', '@keywords', `_${keywords}`])
+  const data = await new Promise((resolve) => {
+    child.on('message', async (m) => {
+      console.log('search end')
+      resolve(m)
+    })
   })
-})
-const _data=data || {noData:true}
-ctx.body = { data:_data}
+  const _data = data || { noData: true }
+  ctx.body = { data: _data }
   await next()
 })
 /**
@@ -80,8 +86,8 @@ router.get('/getArticleDetail', async (ctx, next) => {
       .find({ id })
       .value()
   }
-  const _data=detail || {noData:true}
-  ctx.body = {data:_data}
+  const _data = detail || { noData: true }
+  ctx.body = { data: _data }
   await next()
 })
 

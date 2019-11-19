@@ -1,40 +1,49 @@
 @import '@/style/index.scss';
 
-.list-item{
-    background: #fff;
-    border-radius: r(24);
-    box-shadow: 0 2px 2px 0 rgba(0,0,0,.14), 0 3px 1px -2px rgba(0,0,0,.2), 0 1px 5px 0 rgba(0,0,0,.12);
-    padding:r(30);
-    margin: r(15);
-    min-width: 100%;
-    transition: all 0.25s ease 0s, opacity 0.6s cubic-bezier(0.5, 0, 0, 1) 0s;
-    &:hover{
-        box-shadow: 0 5px 5px 0 rgba(0,0,0,0.1), 0 2px 4px 0 rgba(0,0,0,0.1);
-        cursor: pointer;
+.list-item {
+  background: #fff;
+  border-radius: r(24);
+  box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2),
+    0 1px 5px 0 rgba(0, 0, 0, 0.12);
+  padding: r(30);
+  margin: r(15);
+  transition: all 0.25s ease 0s, opacity 0.6s cubic-bezier(0.5, 0, 0, 1) 0s;
+  &:hover {
+    box-shadow: 0 5px 5px 0 rgba(0, 0, 0, 0.1), 0 2px 4px 0 rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+  }
+  .row {
+    &-01 {
+      margin-top: r(20);
+      font-size: 1.1rem;
+      color: palette('title');
+      opacity: 0.8;
+      padding-bottom: r(10);
+      line-height: 1.3;
     }
-    .row{
-        &-01{
-            margin-top:r(20);
-            font-size: r(32);
-            color: palette('content','dark');
-            padding-bottom: r(10);
+    &-02 {
+      color: rgba(51, 51, 51, 0.7);
+      padding-bottom: r(15);
+      border-bottom: 2px solid palette('border');
+      span:nth-child(3) {
+        opacity: 0.6;
+        color: palette('primary');
+        transition: all 0.3s;
+        &:hover {
+          opacity: 1;
         }
-        &-02{
-            color: rgba(51,51,51,0.7);    
-            padding-bottom: r(15);  
-            border-bottom:2px solid  palette('border');   
-            span:nth-child(3){
-                opacity: .6;
-                color:palette('primary');
-                transition: all .3s;
-                &:hover{
-                    opacity: 1;
-                }
-                padding-right: r(20);
-                            }
-        }
-        &-03{
-            margin-top:r(15);
-        }
+        padding-right: r(20);
+      }
     }
+    &-03 {
+      margin-top: r(15);
+      line-height: 1.8;
+      @include respond-to {
+        -webkit-line-clamp: 4;
+        -webkit-box-orient: vertical;
+        display: -webkit-box;
+        overflow: hidden;
+      }
+    }
+  }
 }

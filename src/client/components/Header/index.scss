@@ -59,8 +59,16 @@
     }
     .row {
       &-01 {
-        min-width: r(40);
-        height: r(50);
+        min-width: 35px;
+        height: 30px;
+        input{
+          width: 150px;
+          height: 30px;
+          border-radius: 14px;
+          border:1px solid palette('border');
+          color: palette('content','dark');
+          outline: none;
+        }
       }
     }
     h2 {
@@ -89,7 +97,7 @@
     top: 0;
     left: 0;
     right: 0;
-    background: palette('primary');
+    background: palette('background','dark');
     .input {
       width: 100%;
       padding-left: r(40);
@@ -110,3 +118,14 @@
     width: 7ch;
   }
 }
+
+.menu-mobile{
+  @include flex(flex-start,flex-start,column);
+  a{
+    transition: all .2s;
+    &:hover{
+      color: #fff;
+    }
+  }
+}
+

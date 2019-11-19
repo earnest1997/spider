@@ -1,5 +1,5 @@
 import React, { useReducer, createContext, forwardRef } from 'react'
-import {article,articleSagas} from './article'
+import { article, articleSagas } from './article'
 
 export const context = createContext()
 
@@ -23,36 +23,38 @@ function combineReducers(reducers) {
       hasChanged = prevStateForKey !== nextStateForKey
       nextState[key] = nextStateForKey
     }
-    console.log( Object.assign({},state,nextState),state,'sate',hasChanged)
-    return hasChanged ? Object.assign({},state,nextState) : state
+    return hasChanged ? Object.assign({}, state, nextState) : state
   }
 }
 
-const rootReducers=combineReducers({article})
+const rootReducers = combineReducers({ article })
 
 const initialState = {
-  article:{
-  hotArticleList: [],
-  searchResultList: [],
-  articleDetail: { title: '', content: '', author: '' }
+  article: {
+    
   }
 }
 function combineSagas(sagas) {
   const [state, dispatch] = useReducer(rootReducers, initialState) //eslint-disable-line
-  let finalSagas={}
-  for(let key in sagas){
-    const saga=sagas[key](dispatch)
-   finalSagas[key]=saga
+  let finalSagas = {}
+  for (let key in sagas) {
+    finalSagas[key] = async function(...arg){
+      const stateKey=key.substr(3).replace(/\w{1}/,$1=>$1.toLowerCase())
+      const stateAfterClean=Reflect.deleteProperty(state,stateKey)
+      dispatch({type:'cleanData',stateAfterClean})
+     const req= sagas[key].call(null,state, dispatch)
+     return req.apply(null,arg)
+    }
   }
+  
   return {
     ...state,
     ...finalSagas
   }
 }
 
-
 export const ContextProvider = ({ children }) => {
-  const rootSagas=combineSagas({...articleSagas})
+  const rootSagas = combineSagas({ ...articleSagas })
   return <context.Provider value={rootSagas}>{children}</context.Provider>
 }
 
@@ -65,7 +67,6 @@ export const connect = (mapStateToProps) => (component) =>
             if (typeof mapStateToProps === 'function') {
               props = { ...props, ...mapStateToProps(initialState, props) }
             }
-            console.log(props, 'opp')
             return React.createElement(component, { ...props, ref })
           })()
         }

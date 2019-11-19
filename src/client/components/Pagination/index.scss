@@ -1,0 +1,49 @@
+@import '@/style';
+
+$prefixCls: '.component-pagination' !default;
+
+#{$prefixCls} {
+  @include flex;
+  margin: 50px 0 0;
+  &-hidden {
+    display: none;
+  }
+  &-item,
+  &-btn {
+    &-active,
+    &:hover {
+      &:not(#{$prefixCls}-btn-disabled) {
+        a {
+          background: rgba(37, 118, 236, 0.9);
+          color: #fff;
+          border: 1px solid rgba(37, 118, 236, 0.9) !important;
+        }
+      }
+    }
+    a {
+      width: 32px;
+      height: 32px;
+      display: inline-block;
+      border-radius: 4px;
+      border: 1px solid rgba(0, 0, 0, 0.25);
+      @include flex;
+      margin-right: 15px;
+      transition: all 0.5s;
+      will-change: background;
+    }
+  }
+  &-btn {
+    font-size: 20px;
+    font-weight: 500;
+    &-disabled {
+      a {
+        &:hover {
+          cursor: not-allowed;
+        }
+        transition: none;
+        color: #d9d9d9;
+        border: 1px solid #d9d9d9;
+      }
+    }
+  }
+}

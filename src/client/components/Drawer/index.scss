@@ -1,0 +1,49 @@
+@import '@/style';
+
+$prefixCls: 'component-drawer' !default;
+
+.#{$prefixCls} {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 10;
+  &.enter,
+  &.exit {
+    .#{$prefixCls}-mask {
+      opacity: 0;
+    }
+    .#{$prefixCls}-content {
+      transform: translateX(100%);
+    }
+  }
+  &.enter-done {
+    .#{$prefixCls}-mask {
+      opacity: 1;
+    }
+    .#{$prefixCls}-content {
+      transform: translateX(0);
+    }
+  }
+  &-mask {
+    background-color: rgba(0, 0, 0, 0.45);
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    transition: all .3s cubic-bezier(.7, .3, .1, 1);
+  }
+  &-content {
+    box-shadow: -2px 0 8px rgba(0, 0, 0, 0.15);
+    width: 206px;
+    height: 100vh;
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: palette('background','darker');
+    transition: all .3s cubic-bezier(.7, .3, .1, 1);
+    padding: 30px 20px;
+  }
+}

@@ -3,7 +3,6 @@ import { unmountComponentAtNode } from 'react-dom'
 import { withRouter } from 'react-router-dom'
 import { classNames, useRequest, copy as copyExec } from 'util'
 import {connect} from '@/store'
-import { isEmptyData } from 'util'
 import cp from '@/components'
 import './index.scss'
 
@@ -17,13 +16,13 @@ function useCopyCode(articleDetail) {
   useEffect(() => {
     const copyBtnList = document.querySelectorAll('[class*=copy-0]')
     const codeList = document.querySelectorAll('[class*=code-0]')
-    if (!isEmptyData(articleDetail) && !articleDetail.noData) {
+    if (articleDetail && !articleDetail.noData) {
       for (let [index, btn] of Object.entries(Array.from(copyBtnList))) {
         const copyHandler = copy.bind(null, index, codeList)
         btn.addEventListener('click', copyHandler)
       }
       return () => {
-        const container = document.getElementsByClassName('wrapper')[0]
+        const container = document.getElementsByClassName('row-03')[0]
         unmountComponentAtNode(container)
       }
     }
@@ -40,15 +39,15 @@ const Article = (props) => {
     articleDetail
   } = props
   const type = path.split('/')[1]
-  const { title, content, author, baseClassName } = articleDetail
   useRequest(getArticleDetail, true, id, type)
   useCopyCode(articleDetail)
   // useLazyLoad(baseClassName)
-  if (isEmptyData(articleDetail)) {
+  if (!articleDetail) {
     return <Loading />
-  } else if (articleDetail.noData) {
+  } else if (articleDetail && articleDetail.noData) {
     return <Empty />
   }
+  const { title, content, author, baseClassName } = articleDetail
   return (
     <div className='wrapper article'>
       <main>

@@ -13,11 +13,11 @@ const jueSearchConfig = {
   searchInput: '.search-input',
   searchBtn: '.search-icon',
   isNewTab: false,
-  maxLength:3
+  maxLength:4
 }
 
 searchMap.set('juejin', mergeDeep({...juejinBaseConfig},{...jueSearchConfig}))
 searchMap.set('jianshu',mergeDeep({...jianshuBaseConfig},{...jianSearchConfig}))
 
-const searchConfig={minLength:1,maxLength:5}
+const searchConfig={minLength:1,maxLength:13}
 module.exports = { searchMap,searchConfig }
