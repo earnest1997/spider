@@ -5,6 +5,7 @@ import { classNames, useRequest, copy as copyExec } from 'util'
 import {connect} from '@/store'
 import cp from '@/components'
 import './index.scss'
+import { useScroll } from 'util/hooks';
 
 const { Loading, Empty } = cp
 
@@ -29,6 +30,18 @@ function useCopyCode(articleDetail) {
   }, [articleDetail, copy])
 }
 
+function SiderTool(){
+  const handleClick=()=>{
+    cp.Modal.info({
+    content: '请先登录',title:'提示'})
+  }
+  return <div className='sider' onClick={handleClick}>
+  <span>
+  <i className='icon ion-md-star' />
+  </span>
+  </div>
+}
+
 const Article = (props) => {
   const {
     match: {
@@ -39,6 +52,7 @@ const Article = (props) => {
     articleDetail
   } = props
   const type = path.split('/')[1]
+  const isSiderVisible=useScroll(300);
   useRequest(getArticleDetail, true, id, type)
   useCopyCode(articleDetail)
   // useLazyLoad(baseClassName)
@@ -59,6 +73,7 @@ const Article = (props) => {
           className={classNames('row row-03', baseClassName)}
           dangerouslySetInnerHTML={{ __html: content }}
         />
+        {isSiderVisible && <SiderTool/>}
       </main>
     </div>
   )

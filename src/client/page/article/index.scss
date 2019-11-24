@@ -4,6 +4,7 @@
   main{
    box-shadow:  0 1px 3px rgba(26,26,26,.1);
    padding: 20px;
+   background: #fff;
   }
   .row{
     margin-bottom: 15px;
@@ -21,6 +22,32 @@
       text-indent: 10px;
       line-height:1.8;
       word-break: break-all;
+    }
+  }
+  .sider{
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 30vh;
+    left: 5vw;
+    span{
+      border-radius: 100%;
+      cursor: pointer;
+      box-shadow:0 2px 4px 0 rgba(0,0,0,.04);
+      width: 3rem;
+      height: 3rem;
+      @include flex;
+      background-color: #fff;
+      i{
+        font-size: 28px;
+        opacity: .7;
+        transition: all .3;
+      }
+      &:hover{
+        i{
+        opacity: 1;
+        }
+      }
     }
   }
 }

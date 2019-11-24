@@ -1,6 +1,6 @@
 const koa = require('koa')
 const path = require('path')
-const db = require(path.resolve(__dirname, '../../bin/db/index.js'))
+const {spiderDb} = require(path.resolve(__dirname, '../../bin/db/index.js'))
 const app = new koa()
 const router = require('koa-router')()
 const { fork } = require('child_process')
@@ -13,8 +13,8 @@ const schedule = require('node-schedule')
 router.get('/getHotArticleList', async (ctx, next) => {
   const { startIndex, requestCount } = ctx.query
   const _data = {
-    list: db.get('hotResList').slice(startIndex, requestCount),
-    total: db
+    list: spiderDb.get('hotResList').slice(startIndex, requestCount),
+    total: spiderDb
       .get('hotResList')
       .size()
       .value()
@@ -24,16 +24,16 @@ router.get('/getHotArticleList', async (ctx, next) => {
   ctx.body = { data: _data }
   await next()
 })
-// function getSearchResultFromDb() {
+// function getSearchResultFromspiderDb() {
 //   let pollCount = 0
 //   const pollInterval = 2000
 //   const supposedMinSearchCount = searchConfig.minLength
 //   const supposedMaxSearchCount = searchConfig.maxLength
 //   return new Promise((resolve, reject) => {
 //     const timer = setInterval(() => {
-//       const data = db.get('searchResList').value()
+//       const data = spiderDb.get('searchResList').value()
 //       if (pollCount < 10) {
-//         console.log(pollCount, db.get('searchResList').value())
+//         console.log(pollCount, spiderDb.get('searchResList').value())
 //         if (data.length >= supposedMaxSearchCount) {
 //           console.log(data)
 //           resolve(data)
@@ -76,12 +76,12 @@ router.get('/getArticleDetail', async (ctx, next) => {
   const { id, type = 'hot' } = ctx.query
   let detail
   if (type === 'hot') {
-    detail = db
+    detail = spiderDb
       .get('hotArticleDetailList')
       .find({ id })
       .value()
   } else {
-    detail = db
+    detail = spiderDb
       .get('searchArticleDetailList')
       .find({ id })
       .value()

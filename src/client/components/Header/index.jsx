@@ -73,6 +73,11 @@ const Header = ({ history, getSearchList, location }) => {
     ? { height: 400, width: '100vw' }
     : { height: 115, width: '100vw' }
   const placeholder = <div style={style}></div>
+  const isAm=(6<new Date().getHours()<=12) && '上午好'
+  const isPm=(18>new Date().getHours()>12) && '下午好'
+  const isNight=(new Date().getHours()>18 || new Date().getHours()<6) && '晚上好'
+  const time=isAm || isPm || isNight
+  const isLogin=!!window.sessionStorage.islogin
   return (
     <>
       {isSwitchHeader && placeholder}
@@ -89,6 +94,7 @@ const Header = ({ history, getSearchList, location }) => {
             value={val}
             onChange={(e) => handleChange(e)}
           />
+          <div className='user'>{!isLogin ? '登录' : `${time},Ashley`}</div>
         </div>
         <h2 className='row row-02' data-hover-layer='1'>
           FE News

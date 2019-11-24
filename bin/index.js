@@ -9,7 +9,7 @@ const puppeteer = require('puppeteer')
 const axios = require('axios')
 const async = require('async')
 const { Readable } = require('stream')
-const db = require(path.resolve(__dirname, './db/index.js'))
+const {spiderDb} = require(path.resolve(__dirname, './db/index.js'))
 // 配置
 const { searchMap } = require(path.resolve(
   __dirname,
@@ -48,14 +48,14 @@ class Spider {
     this[this.operation](this.options)
     this.ErrorLog = new ErrorLog()
     if (this.operation.startsWith('search')) {
-      db.set('searchResList', []).write()
-      db.set('searchArticleDetailList', []).write()
+      spiderDb.set('searchResList', []).write()
+      spiderDb.set('searchArticleDetailList', []).write()
     }
   }
 
-  cleanDb() {
-    fs.truncateSync(path.resolve(__dirname, './db.json'), 0, function() {
-      console.log('unset db')
+  cleanspiderDb() {
+    fs.truncateSync(path.resolve(__dirname, './spiderDb.json'), 0, function() {
+      console.log('unset spiderDb')
     })
   }
 
@@ -241,7 +241,7 @@ class Spider {
       }
     })
     const validResList = filterObjWithInvalidVal(resList)
-    db.set(listName, [...db.get(listName), ...validResList]).write()
+    spiderDb.set(listName, [...spiderDb.get(listName), ...validResList]).write()
     return validResList
   }
   /**
@@ -283,7 +283,7 @@ class Spider {
         suffix = suffix.split('/').pop()
         suffix = suffix.includes('webp') ? '' : `.${suffix}`
         const file = fs.createWriteStream(
-          path.resolve(__dirname, './db/image/' + Date.now() + suffix),
+          path.resolve(__dirname, './spiderDb/image/' + Date.now() + suffix),
           { encoding: 'binary' }
         )
         const inStream = new Readable()
@@ -357,9 +357,9 @@ class Spider {
         0,
         abstractLength
       )}...`
-      db.set(`${listName}[${index}].detail`, abstract).write()
+      spiderDb.set(`${listName}[${index}].detail`, abstract).write()
       const detailContent = this.setCodeClass(_content)
-      db.get(detailListName)
+      spiderDb.get(detailListName)
         .push({
           content: detailContent,
           id,
@@ -375,7 +375,7 @@ class Spider {
   endExec() {
     this.ErrorLog.end()
     if (process.send) {
-      process.send(db.get('searchResList').value())
+      process.send(spiderDb.get('searchResList').value())
     }
     process.exit(0)
   }
@@ -387,7 +387,7 @@ class Spider {
   const operationMap = {
     s: 'searchArticle',
     h: 'fetchHotArticle',
-    c: 'cleanDb'
+    c: 'cleanspiderDb'
   }
   let argArr = [...process.argv]
   const operation = operationMap[argArr[2]]

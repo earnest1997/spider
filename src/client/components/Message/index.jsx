@@ -8,19 +8,11 @@ import React, {
 import { createPortal, render, unmountComponentAtNode } from 'react-dom'
 import { CSSTransition } from 'react-transition-group'
 import classNames from 'classnames'
+import {getRootNode} from 'util'
 import './index.scss'
 
 const prefixCls ='component-message'
-function getRootNode() {
-  const rootCls = `${prefixCls}-root`
-  let node = document.getElementsByClassName(rootCls)[0]
-  if (!node) {
-    node = document.createElement('div')
-    node.classList.add(rootCls)
-    document.body.appendChild(node)
-  }
-  return node
-}
+const rootCls = `${prefixCls}-root`
 
 export const Message = forwardRef(({ type, children, visible }, ref) => {
   const messageCls = classNames(prefixCls, type && `${prefixCls}-${type}`)
@@ -55,7 +47,7 @@ export const Message = forwardRef(({ type, children, visible }, ref) => {
         <span className={`${prefixCls}-content`}>{children}</span>
       </div>
     </CSSTransition>,
-    getRootNode()
+    getRootNode(rootCls)
   )
 })
 

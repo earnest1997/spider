@@ -8,10 +8,13 @@ import React, {
 import { render, unmountComponentAtNode, createPortal } from 'react-dom'
 import classNames from 'classnames'
 import { CSSTransition } from 'react-transition-group'
+import {getRootNode} from 'util'
 import './index.scss'
 
 const prefixCls ='component-loading'
-
+const iconCls = classNames(`${prefixCls}-icon`)
+const textCls = classNames(`${prefixCls}-text`)
+const rootCls = `${prefixCls}-root`
 export const Loading = forwardRef(
   ({ className, text, visible, children, full, ...restProps }, ref) => {
     const [privateVisible, setPrivateVisible] = useState(false)
@@ -27,8 +30,6 @@ export const Loading = forwardRef(
       full && `${prefixCls}-mask-full`,
       className
     )
-    const iconCls = classNames(`${prefixCls}-icon`)
-    const textCls = classNames(`${prefixCls}-text`)
     return (
       <>
         <CSSTransition
@@ -51,18 +52,9 @@ export const Loading = forwardRef(
     )
   }
 )
-function getRootNode() {
-  const rootCls = `${prefixCls}-root`
-  let node = document.getElementsByClassName(rootCls)[0]
-  if (!node) {
-    node = document.createElement('div')
-    node.classList.add(rootCls)
-    document.body.appendChild(node)
-  }
-  return node
-}
+
 function LoadingFull(_, ref) {
-  return createPortal(<Loading visible full ref={ref} />, getRootNode())
+  return createPortal(<Loading visible full ref={ref} />, getRootNode(rootCls))
 }
 
 const FancyLoadingFull = forwardRef(LoadingFull)

@@ -1,4 +1,4 @@
-import { useEffect, useState,useRef, useCallback } from 'react'
+import { useEffect, useState, useRef, useCallback } from 'react'
 import { findDOMNode } from 'react-dom'
 import cp from '@/components'
 import { throttle } from './optimization'
@@ -25,7 +25,7 @@ export function useLazyLoad(baseClassName) {
     }
   }
   useEffect(() => {
-    if(!baseClassName){
+    if (!baseClassName) {
       return
     }
     const rootDom = document.getElementsByClassName(baseClassName)[0]
@@ -41,16 +41,16 @@ export function useLazyLoad(baseClassName) {
   }, [baseClassName])
 }
 
-export function useClickOutSide(ref, handler,addition=true) {
+export function useClickOutSide(ref, handler, addition = true) {
   useEffect(() => {
-    if(!addition){
+    if (!addition) {
       return
     }
     let dom
-    if(!(ref.hasOwnProperty('current'))){
-      dom=document.getElementsByClassName(ref)[0]
-    }else{
-    dom = findDOMNode(ref.current) 
+    if (!ref.hasOwnProperty('current')) {
+      dom = document.getElementsByClassName(ref)[0]
+    } else {
+      dom = findDOMNode(ref.current)
     }
     dom.addEventListener('click', (e) => {
       e.stopPropagation()
@@ -60,7 +60,7 @@ export function useClickOutSide(ref, handler,addition=true) {
     return () => {
       document.removeEventListener('click', handler)
     }
-  }, [handler, ref,addition])
+  }, [handler, ref, addition])
 }
 
 export function useScroll(distance) {
@@ -107,45 +107,56 @@ export function useCopy(selector = 'copy-code-btn') {
 }
 /**
  * 挂载组件的时候发起请求
- * @param {*} req 
- * @param {*} isLoading 
- * @param  {...any} arg 
+ * @param {*} req
+ * @param {*} isLoading
+ * @param  {...any} arg
  */
-export function useRequest(req,isLoading, ...arg) {
+export function useRequest(req, isLoading, ...arg) {
   const [data, setData] = useState()
-  const loadingRef =useRef()
+  const loadingRef = useRef()
   useEffect(() => {
-    if(isLoading) loadingRef.current = cp.Loading.show()
-    req(...arg).then((res) => {
-      if (res && res.data) {
-        setData(res.data)
-      }
-    }).finally(()=>{
-      if(isLoading) loadingRef.current.hide()
-    })
+    if (isLoading) loadingRef.current = cp.Loading.show()
+    req(...arg)
+      .then((res) => {
+        if (res && res.data) {
+          setData(res.data)
+        }
+      })
+      .finally(() => {
+        if (isLoading) loadingRef.current.hide()
+      })
   }, []) // eslint-disable-line
-  return [data,setData]
+  return [data, setData]
 }
-const resizeHandler=(isSmallScreen,setScreen)=>{
- if(window.innerWidth < 768){
-   if(isSmallScreen === true){
-     return
-   }
-   setScreen(true)
- }else if(window.innerWidth > 768){
-   if(isSmallScreen === false){
-     return
-   }
-   setScreen(false)
- }
+const resizeHandler = (isSmallScreen, setScreen) => {
+  if (window.innerWidth < 768) {
+    if (isSmallScreen === true) {
+      return
+    }
+    setScreen(true)
+  } else if (window.innerWidth > 768) {
+    if (isSmallScreen === false) {
+      return
+    }
+    setScreen(false)
+  }
 }
-export function useDeviceScreen(){
-  const [isSmallScreen,setScreen]=useState()
-  const resize=resizeHandler.bind(null,isSmallScreen,setScreen)
-  useEffect(()=>{
+export function useDeviceScreen() {
+  const [isSmallScreen, setScreen] = useState()
+  const resize = resizeHandler.bind(null, isSmallScreen, setScreen)
+  useEffect(() => {
     resize()
-    window.addEventListener('resize',resize)
-    return ()=>window.removeEventListener('resize',resizeHandler)
-  },[]) // eslint-disable-line
-  return [isSmallScreen,setScreen]
+    window.addEventListener('resize', resize)
+    return () => window.removeEventListener('resize', resizeHandler)
+  }, []) // eslint-disable-line
+  return [isSmallScreen, setScreen]
+}
+export function useDisableScroll(addition) {
+  useEffect(() => {
+    if (addition) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'scroll'
+    }
+  }, [addition])
 }

@@ -99,7 +99,7 @@ export function mergeDeep(target, ...sources) {
  * @param {Array} property
  * @param {object} obj
  */
-export function omit(property, obj) {
+export function omit(obj,property) {
   const _obj = { ...obj }
   for (let k in _obj) {
     if (property.includes(k)) {
@@ -176,6 +176,19 @@ export function importAll(r,reg) {
       cache[_key] = r(key).default ? r(key).default : (r(key)[_key] || r(key))
     })
   return cache
+}
+/**
+ * 获取portal的容器节点
+ * @param {string} prefixCls 
+ */
+export function getRootNode(prefixCls) {
+  let node = document.getElementsByClassName(prefixCls)[0]
+  if (!node) {
+    node = document.createElement('div')
+    node.classList.add(prefixCls)
+    document.body.appendChild(node)
+  }
+  return node
 }
 
 // exports = {
