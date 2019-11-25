@@ -51,3 +51,20 @@
     }
   }
 }
+.collect-modal-content{
+  @include flex(space-between,center,column);
+  .row{
+    width: 100%;
+  }
+  .collect-item{
+    @include flex(space-between);
+    height: 22px;
+    line-height: 22px;
+    span:first-child{ 
+      span{
+        margin-right: 10px;
+
+      }
+    }
+  }
+}

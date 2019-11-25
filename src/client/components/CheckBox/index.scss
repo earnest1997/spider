@@ -1,0 +1,38 @@
+@import '@/style';
+
+$prefixCls:'component-checkbox'!default;
+
+.#{$prefixCls}{
+  width: 20px;
+  height: 20px;
+  display: inline-block;
+  line-height: 20px;
+  position: relative;
+  input{
+    @extend %fill-parent;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+  }
+  i{
+    @extend %fill-parent;
+    width: 100%;
+    height: 100%;
+    border-radius: 4px;
+    font-size: 20px;
+    color: transparent;
+    border:1px solid palette('border');
+  }
+  &-checked{
+   i{
+    background-color: palette('primary');
+    border-color: transparent;
+    color: #fff;
+   }
+  }
+  &-disabled{
+i{
+  background-color: palette('disabled');
+}
+  }
+}

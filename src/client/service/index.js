@@ -1,4 +1,4 @@
-import { get } from 'util/http'
+import { get,post } from 'util/http'
 
 /**
  * 获取热门文章
@@ -26,10 +26,20 @@ export const getsearchListApi = async (keywords) => {
 export const getArticleDetailApi = async (id, type) => {
   return get('/getArticleDetail', { id, type })
 }
-// /**
-//  * 获取搜索文章详情
-//  * @param {*} id
-//  */
-// export const getSearchArticleDetailApi= async (id) =>{
-//   return get('/searchArticleDetailList',{id})
-// }
+
+/**
+ * 添加收藏
+ * @param {*} id 
+ * @param {*} user 
+ * @param {*} collectName
+ */
+export const postCollect = async(id,user,collectName)=>{
+  return post('/postCollect',{id,user,collectName})
+}
+/**
+ * 获取收藏列表
+ * @param {*} user 
+ */
+export const getCollects=async (user)=>{
+  return get('/getCollecs',{user})
+}
