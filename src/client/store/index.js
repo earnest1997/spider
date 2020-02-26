@@ -29,8 +29,7 @@ function combineReducers(reducers) {
 
 const rootReducers = combineReducers({ article })
 
-const initialState = {
-article: {}}
+const initialState = {article: {}}
 function combineSagas(sagas) {
   const [state, dispatch] = useReducer(rootReducers, initialState) //eslint-disable-line
   let finalSagas = {}
