@@ -2,7 +2,6 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">   
     <link href="https://cdn2.jianshu.io/shakespeare/_next/static/css/styles.909485bb.chunk.css" rel="stylesheet"><link href="https://b-gold-cdn.xitu.io/v3/static/css/0.8601f73e886b71530583.css" rel="stylesheet"><title>FE news</title>
   </head>
@@ -13,5 +12,16 @@
     </noscript>
     <div id="root"></div>
     <!-- built files will be auto injected -->
+    <script>
+      if('serviceWorker' in navigator){
+        navigator.serviceWorker.register('./sw.js').then(reg=>{
+          console.log('register success',reg)
+        }).catch(err=>{
+          console.log('register failed',err)
+        })
+      }else{
+        console.log('不支持serviceWorker')
+      }
+    </script>
   </body>
 </html>

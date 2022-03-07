@@ -1,7 +1,4 @@
-/**
- * Copyright (c) Info FE
- * lishuaishuai<lishuaishuai@xiaomi.com>
- */
+
 
 const path = require('path')
 const NODE_ENV = process.env.NODE_ENV
@@ -23,7 +20,7 @@ module.exports = {
     assetsSubDirectory: './',
     assetsPublicPath: '/',
     devServer: {
-      host: '0.0.0.0',
+      // host: '0.0.0.0',
       port: 3001,
       open: true,
       overlay: true,

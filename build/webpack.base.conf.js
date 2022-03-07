@@ -1,11 +1,9 @@
-/**
- * Copyright (c) Info FE
- * lishuaishuai<lishuaishuai@xiaomi.com>
- */
+
 
 const path = require('path')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const config = require('./config')
+const SwPlugin = require('./sw-plugin.js')
 const NODE_ENV = process.env.NODE_ENV
 // style files regexes
 const preRegex = /\.(scss|sass)$/
@@ -85,4 +83,5 @@ module.exports = {
       }
     ]
   }
+  // plugins:[new SwPlugin()]
 }
