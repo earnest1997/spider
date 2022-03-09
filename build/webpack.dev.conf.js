@@ -30,17 +30,13 @@ module.exports = merge(baseWebpackConfig, {
   },
   plugins: [
     new webpack.HotModuleReplacementPlugin(),
-    new CleanWebpackPlugin({
-      cleanStaleWebpackAssets: false,
-  }),
     new CopyWebpackPlugin([
       {
         from: path.resolve(__dirname, '../src/client/scripts/sw.js'),
         to: config.dev.assetsRoot,
-        // copyUnmodified: true,
-        cache:true,
-        force:true
-      }
+        force:true,
+        copyUnmodified: true
+      },
     ]),
     new HtmlWebpackPlugin({
       template: './src/index.tpl.html',
