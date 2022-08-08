@@ -61,7 +61,7 @@ router.get('/getHotArticleList', async (ctx, next) => {
  */
 router.get('/getsearchList', async (ctx, next) => {
   const { keywords } = ctx.query
-  const child = fork('./bin/index.js', ['s', '@keywords', `_${keywords}`])
+  const child = fork('./nodex.js', ['s', '@keywords', `_${keywords}`])
   const data = await new Promise((resolve) => {
     child.on('message', async (m) => {
       console.log('search end')

@@ -10,18 +10,18 @@
     <noscript>
       <strong>You need to enable JavaScript to run this app.</strong>
     </noscript>
-    <div id="root"></div>
+    <div id="rootEle"></div>
     <!-- built files will be auto injected -->
     <script>
-      if('serviceWorker' in navigator){
-        navigator.serviceWorker.register('./sw.js').then(reg=>{
-          console.log('register success',reg)
-        }).catch(err=>{
-          console.log('register failed',err)
-        })
-      }else{
-        console.log('不支持serviceWorker')
-      }
+      // if('serviceWorker' in navigator){
+      //   navigator.serviceWorker.register('./sw.js').then(reg=>{
+      //     console.log('register success',reg)
+      //   }).catch(err=>{
+      //     console.log('register failed',err)
+      //   })
+      // }else{
+      //   console.log('不支持serviceWorker')
+      // }
     </script>
   </body>
 </html>
