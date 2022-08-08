@@ -23,6 +23,14 @@ const ListenRouteChange = withRouter(({ location })=> {
 })
 
 export const App = () => {
+  // React.useEffect(()=>{
+  //   setTimeout(()=>{
+      
+  //   },[])
+  // },[])
+  const test=()=>{
+    cp.Message.success('成功')
+  }
   return (
     <ErrorBoundary>
       <ContextProvider>
@@ -32,6 +40,7 @@ export const App = () => {
             <Switch>
               <Route path='/404' component={page.NotFound} />
               <React.Fragment>
+                <button onClick={test}>test</button>
                 <Header />
                 <BackToTop />
                 <Switch>

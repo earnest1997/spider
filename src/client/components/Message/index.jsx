@@ -35,6 +35,8 @@ export const Message = forwardRef(({ type, children, visible }, ref) => {
       setPrivateVisible(false)
     }
   }))
+  let mountNode = document.createElement('div')
+  mountNode.classList.add('btest')
   return createPortal(
     <CSSTransition
       classNames={prefixCls}
@@ -47,12 +49,14 @@ export const Message = forwardRef(({ type, children, visible }, ref) => {
         <span className={`${prefixCls}-content`}>{children}</span>
       </div>
     </CSSTransition>,
-    getRootNode(rootCls)
+    mountNode
   )
 })
 
-function renderMessage({ type, children, duration = 3000 }) {
+function renderMessage({ type, children, duration = 30000 }) {
   let mountNode = document.createElement('div')
+  mountNode.classList.add('testa')
+  document.body.append(mountNode)
   const ref = createRef()
   render(
     <Message type={type} ref={ref} visible>
@@ -60,6 +64,7 @@ function renderMessage({ type, children, duration = 3000 }) {
     </Message>,
     mountNode
   )
+  // debugger
   setTimeout(() => {
     ref.current.hide()
     setTimeout(() => {
